@@ -2,7 +2,7 @@
  *  build: 杭州数蛙科技有限公司 
  *  copyright: dgiot-dashboard 
  *  author: h7ml(h7ml@qq.com) 
- *  time: Mon Nov 15 2021 11:12:02 GMT+0000 (Coordinated Universal Time)
+ *  time: Mon Nov 15 2021 12:23:21 GMT+0000 (Coordinated Universal Time)
  */
 
 .amap-demo {
@@ -22,8 +22,10 @@
 
 [data-v-539c7a04]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}*[data-v-539c7a04]{padding:0;margin:0}.remove-text[data-v-539c7a04]{padding:20px;font-size:24px;text-align:center}.show-multiple[data-v-539c7a04]{display:flex}.show-multiple .multiple-player[data-v-539c7a04]{width:calc(100% / 4);margin:20px}.player-btns[data-v-539c7a04]{display:flex;flex-wrap:wrap;justify-content:center;width:100%}.player-btns span[data-v-539c7a04]{display:inline-block;width:150px;height:40px;padding:5px 10px;margin:0 auto;margin:5px;line-height:40px;text-align:center;cursor:pointer;background:#e1e1e1;border:1px solid #eee;border-radius:10px}.source-box[data-v-539c7a04]{padding:5px 10px;margin-bottom:20px}.source-box .source-label[data-v-539c7a04]{display:block;margin-right:20px;font-size:16px}.source-box #source[data-v-539c7a04]{margin-top:10px}.source-box .source-input[data-v-539c7a04]{width:80%;padding:5px 10px;margin-top:10px;border:1px solid #ccc}
 
-.node-tree[data-v-4b783dce] {
+.node-tree[data-v-b44d8dac] {
   height: 85vh;
+  margin: 12px 0 auto 12px;
+  text-align: center;
 }
 
 [data-v-a52fc2be]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}.avatar-dropdown[data-v-a52fc2be]{display:flex;align-content:center;align-items:center;justify-content:center;justify-items:center}.avatar-dropdown .user-avatar[data-v-a52fc2be]{width:40px;height:40px;margin-left:15px;cursor:pointer;border-radius:50%}.avatar-dropdown .user-name[data-v-a52fc2be]{position:relative;display:flex;align-content:center;align-items:center;height:40px;margin-left:6px;line-height:40px;cursor:pointer}.avatar-dropdown .user-name [class*=ri-][data-v-a52fc2be]{margin-left:0 !important}
