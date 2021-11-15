@@ -2,9 +2,9 @@
  *  build: 杭州数蛙科技有限公司 
  *  copyright: dgiot-dashboard 
  *  author: h7ml(h7ml@qq.com) 
- *  time: Mon Nov 15 2021 03:38:27 GMT+0000 (Coordinated Universal Time)
+ *  time: Mon Nov 15 2021 07:36:02 GMT+0000 (Coordinated Universal Time)
  */
-@import url(https://unpkg.com/vditor@3.8.6/src/assets/scss/index.scss);
+@import url(https://unpkg.com/vditor@3.8.6/dist/index.css);
 @import url(https://unpkg.com/xterm@4.13.0/css/xterm.css);
 
 .monaco-editor {
@@ -1223,7 +1223,7 @@ code[data-v-cc92e080] {
   color: #409eff;
 }
 
-[data-v-30fabef8]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}.dgiot-doc-header[data-v-30fabef8]{margin-top:10px}#vditor[data-v-30fabef8]{height:calc(100vh - 60px * 2.7 - 64px)}
+[data-v-68e0a7c4]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}.dgiot-doc-header[data-v-68e0a7c4]{margin-top:10px}#vditor[data-v-68e0a7c4]{height:calc(100vh - 60px * 2.7 - 64px)}
 [data-v-962f7d40]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}
 [data-v-00bf8f9c]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}.ys7-container[data-v-00bf8f9c]{width:100%;height:calc(100vh - 200px)}
 [data-v-7b81f76e]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}.wrapper[data-v-7b81f76e]{position:fixed;right:-11.5px;bottom:145px;z-index:9999;padding:7px 15px;padding-right:19px;font-size:12px;font-weight:700;line-height:12px;color:#fff;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;background-color:rgba(0,0,0,.7);border:1px solid #000;border-radius:4px;opacity:1;transition:all .3s}.wrapper[data-v-7b81f76e]:hover{right:-4px;background-color:rgba(0,0,0,.9)}.wrapper i[data-v-7b81f76e]{margin-right:3px;font-size:12px}
