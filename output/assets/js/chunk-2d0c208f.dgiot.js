@@ -1,8 +1,8 @@
 /*!
  *  build: 杭州数蛙科技有限公司 
- *  copyright: dgiot-Dashboard 
+ *  copyright: dgiot-dashboard 
  *  author: h7ml(h7ml@qq.com) 
- *  time: Wed Nov 17 2021 03:58:08 GMT+0000 (Coordinated Universal Time)
+ *  time: Wed Nov 17 2021 04:07:08 GMT+0000 (Coordinated Universal Time)
  */
 (window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0c208f"],{"491e":function(e,t,o){"use strict";o.r(t),o.d(t,"conf",(function(){return n})),o.d(t,"language",(function(){return i}));
 /*!---------------------------------------------------------------------------------------------
