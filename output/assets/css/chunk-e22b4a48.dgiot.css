@@ -2,8 +2,9 @@
  *  build: 杭州数蛙科技有限公司 
  *  copyright: dgiot-dashboard 
  *  author: h7ml(h7ml@qq.com) 
- *  time: Wed Nov 17 2021 06:55:42 GMT+0000 (Coordinated Universal Time)
+ *  time: Wed Nov 17 2021 07:57:26 GMT+0000 (Coordinated Universal Time)
  */
 [data-v-96e98a90]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}
+.dashboard-container main{position:relative;top:20px;height:100vh;margin:0 auto;text-align:center}
 [data-v-866e23ca]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}
 [data-v-611decb6]:export{menu-color:rgba(255,255,255,.95);menu-color-active:rgba(255,255,255,.95);menu-background:#282c34;column-second-menu-background:#fff}.instruct[data-v-611decb6]{box-sizing:border-box;min-height:100%;padding:20px;background:#fff}.instruct .instruct_button[data-v-611decb6]{display:flex;flex-direction:row-reverse;flex-direction:unset;justify-content:space-between}.instruct .instruct_table[data-v-611decb6]{margin-top:20px}.instruct[data-v-611decb6]  .el-select--small{width:100%}
