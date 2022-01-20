@@ -33,9 +33,11 @@ router.beforeEach(async (to, from, next) => {
     router: to.meta.component,
     timestamp: moment(new Date()).valueOf(),
   })
-  // if (to.name == '404') {
-  //   return false
-  // }
+  if (to.name == '404') {
+    console.log('dgiot router log---')
+    console.log(to)
+    return false
+  }
   const { showProgressBar } = store.getters['settings/theme']
   if (showProgressBar) VabProgress.start()
   let hasToken = store.getters['user/token']
