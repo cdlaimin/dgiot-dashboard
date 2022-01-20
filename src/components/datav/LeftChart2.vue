@@ -1,19 +1,22 @@
 <template>
   <div id="left-chart-2">
-    <div class="left-chart-2" style="width: 100%; height: 10%">
-      <div class="lc2-header" style="width: 50%">出口压力</div>
-      <div class="lc2-details" style="width: 50%">频率</div>
-    </div>
-    <div class="left-chart-2" style="width: 100%; height: 90%">
-      <dv-active-ring-chart
+    <div class="left-chart-2" style="width: 100%; height: 80%">
+      <!-- <dv-active-ring-chart
         :config="config"
-        style="width: 50%; height: 200px"
-      />
+        style="width: 90%; height: 100px; margin: 0 auto"
+      /> -->
       <dv-charts
+        :option="option"
+        style="width: 90%; height: 100px; margin: 0 auto"
+      />
+      <!-- <dv-charts
         class="lc2-chart"
         :option="option"
         style="width: 50%; height: 200px"
-      />
+      /> -->
+    </div>
+    <div class="left-chart-2" style="width: 100%; height: 20%">
+      <span class="lc2-header" style="margin: 0 auto">出口压力</span>
     </div>
     <dv-decoration-2 style="height: 10px" />
   </div>
@@ -27,33 +30,47 @@
         option: {
           series: [
             {
-              type: 'pie',
+              type: 'gauge',
+              color: '#fff',
+              radius: '80%',
               data: [
-                { name: '产品大类1', value: 93 },
-                { name: '大类2', value: 32 },
-                { name: '分类3', value: 65 },
-                { name: '分类4', value: 44 },
-                { name: '其他', value: 52 },
+                {
+                  name: 'itemA',
+                  value: 54,
+                  gradient: ['#4cc0ef', '#031636'],
+                },
               ],
-              radius: ['45%', '65%'],
-              insideLabel: {
+              max: 120,
+              axisLabel: {
+                formatter: '{value}',
+                style: {
+                  color: '#fff',
+                  fontSize: 8,
+                  rotate: 0,
+                },
+              },
+              pointer: {
+                style: {
+                  // 可以调节scale的值放大缩小指针
+                  scale: [1, 1],
+                  fill: '#ccc',
+                },
+              },
+              details: {
                 show: true,
+                offset: [0, 20],
+                formatter: '{value}', //展示的具体值
+                style: {
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  textBaseline: 'middle',
+                  fill: '#fff',
+                },
               },
-              outsideLabel: {
-                show: false,
-              },
-              // },
-              // outsideLabel: {
-              //   labelLineEndLength: 0,
-              //   // formatter: "{percent}%\n{name}",
-              //   // style: {
-              //   //   fontSize: 14,
-              //   //   fill: "#fff",
-              //   // },
-              // },
+              animationCurve: 'easeOutBack',
             },
           ],
-          color: ['#00baff', '#3de7c9', '#fff', '#ffc530', '#469f4b'],
         },
         config: {
           data: [
@@ -90,10 +107,12 @@
 
 <style lang="scss">
   #left-chart-2 {
-    width: 100%;
-    height: 30%;
+    width: 50%;
+    // height: 30%;
     display: flex;
+    background-color: #0f599a;
     flex-direction: column;
+    border-radius: 10px;
   }
   .left1piechart {
     width: 100%;
@@ -112,7 +131,7 @@
       height: 20px;
       line-height: 20px;
       font-size: 16px;
-      text-indent: 30px;
+      // text-indent: 30px;
       margin-top: 10px;
     }
 

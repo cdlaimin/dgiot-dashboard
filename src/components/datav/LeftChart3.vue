@@ -34,7 +34,7 @@
 <style lang="scss">
   .left-chart-3 {
     width: 100%;
-    height: 40%;
+    height: 20%;
     display: flex;
     flex-direction: column;
 
@@ -47,7 +47,7 @@
     }
 
     .lc3-details {
-      height: 40px;
+      height: 20px;
       font-size: 16px;
       display: flex;
       align-items: center;
