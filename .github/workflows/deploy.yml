@@ -131,29 +131,3 @@ jobs:
           runs: 5
           uploadArtifacts: true
           configPath: './.github/workflows/setup/lighthouse-audit.json'
-
-  jenkins:
-    runs-on: ubuntu-latest
-    container: docker.io/centos:centos7
-    steps:
-      - name: jenkins
-        run: |
-          yum install -y wget tar unixODBC automake unixODBC-devel libtool-ltdl libtool-ltdl-devel autoconf kernel-devel m4 ncurses-devel libtool make net-tools ntpdate gcc gcc-c++  epel-release clang libicu-devel perl-ExtUtils-Embed readline readline-devel zlib zlib-devel pam-devel libxml2-devel libxslt-devel openldap-devel systemd-devel tcl-devel python-devel
-          yum install -y libXcomposite libXdamage libXtst cups libXScrnSaver pango atk adwaita-cursor-theme adwaita-icon-theme
-          yum install -y at at-spi2-atk at-spi2-core cairo-gobject colord-libs
-          yum install -y dconf desktop-file-utils ed emacs-filesystem gdk-pixbuf2
-          yum install -y glib-networking gnutls gsettings-desktop-schemas
-          yum install -y  gtk-update-icon-cache gtk3 hicolor-icon-theme jasper-libs
-          yum install -y json-glib libappindicator-gtk3 libdbusmenu libdbusmenu-gtk3 libepoxy
-          yum install -y liberation-fonts liberation-narrow-fonts liberation-sans-fonts liberation-serif-fonts
-          yum install -y libgusb libindicator-gtk3 libmodman libproxy libsoup libwayland-cursor libwayland-egl
-          yum install -y libxkbcommon m4 mailx nettle patch psmisc redhat-lsb-core redhat-lsb-submod-security
-          yum install -y rest spax time trousers xdg-utils xkeyboard-config alsa-lib
-#          wget -q https://cdn.jsdelivr.net/gh/dgiot/dgiot@master/dgiot_install.sh
-#          sh dgiot_install.sh
-          ls
-#    - name: Upload  🚀
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: dgiot-dashboard
-#        path: dev
