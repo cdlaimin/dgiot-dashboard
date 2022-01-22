@@ -42,6 +42,8 @@ const FileManagerPlugin = require('filemanager-webpack-plugin')
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 // const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 // const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin') // 非汉化
+// const MonacoWebpackPlugin = require('monaco-editor-esm-webpack-plugin') // 汉化版
 const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
@@ -72,6 +74,30 @@ function getChainWebpack(config) {
   config.plugins.delete('prefetch')
   config.plugins.delete('preload-index')
   config.plugins.delete('prefetch-index')
+  /**
+   * @description
+   * @topo: 非汉化注释以下内容
+   */
+  config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
+    {
+      languages: ['json', 'java', 'python', 'shell', 'sql', 'text'],
+      // 以下为全部支持的代码语言，可根据需求添加
+      //   ['abap', 'apex', 'azcli', 'bat', 'cameligo', 'clojure', 'coffee', 'cpp', 'csharp', 'csp', 'css', 'dart', 'dockerfile', 'ecl', 'fsharp', 'go', 'graphql', 'handlebars', 'hcl', 'html', 'ini', 'java', 'javascript', 'json', 'julia', 'kotlin', 'less', 'lexon', 'lua', 'm3', 'markdown', 'mips', 'msdax', 'mysql', 'objective-c', 'pascal', 'pascaligo', 'perl', 'pgsql', 'php', 'postiats', 'powerquery', 'powershell', 'pug', 'python', 'r', 'razor', 'redis', 'redshift', 'restructuredtext', 'ruby', 'rust', 'sb', 'scala', 'scheme', 'scss', 'shell', 'solidity', 'sophia', 'sql', 'st', 'swift', 'systemverilog', 'tcl', 'twig', 'typescript', 'vb', 'xml', 'yaml'],
+      features: [
+        'format',
+        'find',
+        'contextmenu',
+        'gotoError',
+        'gotoLine',
+        'gotoSymbol',
+        'hover',
+        'documentSymbols',
+      ],
+      // 以下为全部功能模块，可根据需求添加
+      // ['accessibilityHelp', 'anchorSelect', 'bracketMatching', 'caretOperations', 'clipboard', 'codeAction', 'codelens', 'colorPicker', 'comment', 'contextmenu', 'coreCommands', 'cursorUndo', 'dnd', 'documentSymbols', 'find', 'folding', 'fontZoom', 'format', 'gotoError', 'gotoLine', 'gotoSymbol', 'hover', 'iPadShowKeyboard', 'inPlaceReplace', 'indentation', 'inlineHints', 'inspectTokens', 'linesOperations', 'linkedEditing', 'links', 'multicursor', 'parameterHints', 'quickCommand', 'quickHelp', 'quickOutline', 'referenceSearch', 'rename', 'smartSelect', 'snippets', 'suggest', 'toggleHighContrast', 'toggleTabFocusMode', 'transpose', 'unusualLineTerminators', 'viewportSemanticTokens', 'wordHighlighter', 'wordOperations', 'wordPartOperations']
+    },
+  ])
+  // config.plugin('monaco').use(new MonacoWebpackPlugin())
   config.plugin('html').tap((args) => {
     var _staticUrl = localUrl
     // if (useCdn || process.env.NODE_ENV !== 'development') {
@@ -157,13 +183,13 @@ function getChainWebpack(config) {
       // https://blog.csdn.net/weixin_42164539/article/details/110389256
       config.plugin('compression').use(CompressionWebpackPlugin, [
         {
-          filename: '[path][base].gz[query]', // 一个 {Function} (asset) => asset 函数，接收原资源名（通过 asset 选项）返回新资源名
+          filename: '[path][base].gz', // 一个 {Function} (asset) => asset 函数，接收原资源名（通过 asset 选项）返回新资源名
           algorithm: 'gzip', // 可以是 (buffer, cb) => cb(buffer) 或者是使用 zlib 里面的算法的 {String}
           // test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'), //匹配文件名
           test: productionGzipExtensions,
           // threshold: 2048, //对1K以上的数据进行压缩
           // minRatio: 0.8, // 只有压缩率比这个值小的资源才会被处理
-          // deleteOriginalAssets: true, //是否删除源文件
+          // deleteOriginalAssets: false, //是否删除源文件
         },
         new Webpack.optimize.LimitChunkCountPlugin({
           maxChunks: 5,
@@ -267,8 +293,33 @@ const configure = {
       '*': resolve(''),
     },
   },
+  module: {
+    /**
+     * @description: 汉化 Monaco 右键菜单
+     * @doc: https://blog.csdn.net/m0_37986789/article/details/121135519
+     * @topo: 汉化放出下列注释
+     */
+    // rules: [
+    //   {
+    //     test: /\.js/,
+    //     enforce: 'pre',
+    //     include: /node_modules[\\\/]monaco-editor[\\\/]esm/,
+    //     use: MonacoWebpackPlugin.loader,
+    //   },
+    // ],
+  },
   plugins: [
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
+    /**
+     * @description: 汉化 Monaco 右键菜单
+     * @doc: https://blog.csdn.net/m0_37986789/article/details/121135519
+     * @topo: 汉化放出下列注释
+     */
+    // new MonacoWebpackPlugin({
+    //   languages: ['json','java', 'python', 'shell', 'sql','text'],
+    //   filename: 'output/assets/js/monaco/[name].worker.js',
+    //   features: ['format', 'find', 'contextmenu', 'gotoError', 'gotoLine', 'gotoSymbol', 'hover' , 'documentSymbols']
+    // }),
     // new ForkTsCheckerWebpackPlugin(),
     // new HardSourceWebpackPlugin(),
     new Webpack.ProvidePlugin(providePlugin),

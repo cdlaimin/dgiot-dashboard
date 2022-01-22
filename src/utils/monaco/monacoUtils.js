@@ -1,3 +1,9 @@
+/**
+ * @topo 汉化放出当前说明下的第一行注释
+ * @param text
+ * @param preWord
+ * @returns {*}
+ */
 // import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 // eslint-disable-next-line no-unused-vars

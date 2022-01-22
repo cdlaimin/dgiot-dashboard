@@ -37,6 +37,8 @@ module.exports = {
     '/datav',
     '/jwtLogin',
     '/quick',
+    '/lite',
+    '/dev',
   ],
   // 加载时显示文字
   loadingText: '正在加载中...',
@@ -51,7 +53,7 @@ module.exports = {
   // session 即将过期是否刷新cookie
   refreshSession: true,
   // 不需要token请求的路由
-  noCookiePages: ['', '/login', '/jwtLogin', '/quick'],
+  noCookiePages: ['', '/login', '/jwtLogin', '/quick', '/lite', '/dev'],
   localHost: [
     'tcloudbaseapp.com',
     'gitee.io',

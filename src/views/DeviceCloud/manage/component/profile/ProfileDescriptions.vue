@@ -220,7 +220,7 @@
         <vab-monaco-plus
           ref="monacoCode"
           :codes="ace_editor"
-          :language="'json'"
+          :lang="'json'"
           :read-only="true"
           :theme="'vs-dark'"
         />

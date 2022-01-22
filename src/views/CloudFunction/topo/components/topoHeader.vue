@@ -110,7 +110,7 @@
           v-if="drawerTopo"
           ref="monacoCodeTopo"
           :codes="codes"
-          :language="'json'"
+          :lang="'json'"
           :read-only="false"
           style="margin-top: 26px"
           :theme="'vs-dark'"

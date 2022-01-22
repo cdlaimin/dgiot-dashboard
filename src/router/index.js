@@ -21,6 +21,16 @@ export const constantRoutes = [
     hidden: true,
   },
   {
+    path: '/admin',
+    component: () => import('@/views/MultiTenant/user/admin'),
+    hidden: true,
+  },
+  {
+    path: '/dev',
+    component: () => import('@/views/MultiTenant/user/dev'),
+    hidden: true,
+  },
+  {
     path: '/datav',
     component: () => import('@/components/datav/index'),
     hidden: true,

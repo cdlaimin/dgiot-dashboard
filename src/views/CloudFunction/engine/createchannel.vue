@@ -248,7 +248,7 @@
               <vab-monaco-plus
                 ref="monacoCode"
                 :codes="addchannel.codes"
-                :language="'json'"
+                :lang="'json'"
                 :read-only="false"
                 :theme="'vs-dark'"
               />
@@ -390,9 +390,12 @@
               read: true,
               write: true,
             }
+            console.log(this.$refs.monacoCode.$refs.monacoEditor.editor)
             const data = {
-              data: this.$refs.monacoCode.monacoEditor
-                ? JSON.parse(this.$refs.monacoCode.monacoEditor.getValue())
+              data: this.$refs.monacoCode.$refs.monacoEditor.editor
+                ? JSON.parse(
+                    this.$refs.monacoCode.$refs.monacoEditor.editor.getValue()
+                  )
                 : {},
               ACL: aclObj,
               config: obj,

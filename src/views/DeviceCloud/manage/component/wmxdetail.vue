@@ -1769,6 +1769,7 @@
                     max: sizeForm.endnumber,
                     min: sizeForm.startnumber,
                     step: sizeForm.step,
+                    precision: Number(sizeForm.precision),
                     unit: sizeForm.unit == '' ? '' : sizeForm.unit,
                   },
                   das: das,

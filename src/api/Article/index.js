@@ -18,6 +18,12 @@ export async function createArticle(params) {
     'Article',
     // eslint-disable-next-line no-undef
     _.merge(params, {
+      ACL: {
+        '*': {
+          read: true,
+          write: false,
+        },
+      },
       timestamp: moment(new Date()).valueOf(),
     })
   )

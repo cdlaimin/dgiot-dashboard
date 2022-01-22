@@ -87,7 +87,7 @@
               <vab-monaco-plus
                 ref="monacoCode"
                 :codes="dataform.data"
-                :language="'json'"
+                :lang="'json'"
                 :read-only="false"
                 :theme="'vs-dark'"
               />

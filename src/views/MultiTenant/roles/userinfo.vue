@@ -6,6 +6,7 @@
           <el-card shadow="hover">
             <div class="personal-center-user-info">
               <el-avatar
+                shape="square"
                 :size="100"
                 :src="$FileServe + avatar"
                 @click.native="uploadCkick('userinfo.avatar')"
