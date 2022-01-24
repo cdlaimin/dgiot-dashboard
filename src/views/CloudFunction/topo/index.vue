@@ -85,16 +85,18 @@
   import { _getTopo } from '@/api/Topo'
   import { putProduct, queryProduct } from '@/api/Product'
   import { putView, getView } from '@/api/View'
+  import { isBase64 } from '@/utils'
   export default {
     components: {
       ...requiremodule(require.context('./components', true, /\.vue$/)),
     },
     data() {
       return {
+        subtopic: '',
+        router: '',
         viewInfo: {},
         driver: null,
         Stage: {},
-        router: '',
         isFull: false,
         topicKey: '',
         isFullscreen: false,
@@ -343,6 +345,71 @@
           )
           this.deleteTopo(window.deletePath)
         }, 1000)
+        _this.subtopic = `thing/${_this.productid}/post`
+        _this.topicKey = _this.$dgiotBus.topicKey(_this.router, _this.subtopic)
+        //
+        console.warn('订阅mqtt')
+        // 订阅webscroket
+        _this.$dgiotBus.$emit(`MqttSubscribe`, {
+          router: this.router,
+          topic: this.subtopic,
+          qos: 0,
+          ttl: 1000 * 60 * 60 * 3,
+        })
+        _this.handleMqttMsg()
+      },
+      // 处理mqtt信息
+      handleMqttMsg() {
+        console.error('this.topicKey', this.topicKey)
+        this.$dgiotBus.$off(this.topicKey)
+        this.$dgiotBus.$on(this.topicKey, (Msg) => {
+          console.log('收到消息', Msg)
+          if (Msg.payload) {
+            let decodeMqtt
+            let updataId = []
+            if (!isBase64(Msg.payload)) {
+              console.log('非base64数据类型')
+              decodeMqtt = Msg.payload
+            } else {
+              decodeMqtt = JSON.parse(Base64.decode(Msg.payload))
+              console.log('消息解密消息', decodeMqtt)
+            }
+
+            console.log(decodeMqtt.konva)
+            const Shape = decodeMqtt.konva
+            // apply transition to all nodes in the array
+            // Text.each(function (shape) {
+            const Text = canvas.stage.find('Text')
+            console.log(Text)
+            const tweens = []
+            for (var n = 0; n < tweens.length; n++) {
+              tweens[n].destroy()
+            }
+
+            Shape.forEach((i) => {
+              Text.forEach((shape) => {
+                if (i.id == shape.attrs.id) {
+                  console.log('更新节点', i)
+                  console.log(shape)
+                  shape.text(i.text)
+                  tweens.push(
+                    new Konva.Tween({
+                      node: shape,
+                      duration: 1,
+                      easing: Konva.Easings.ElasticEaseOut,
+                    }).play()
+                  )
+                } else {
+                  updataId.push(i.id)
+                }
+              })
+            })
+            if (updataId) {
+              console.log('以下组态id未更新', updataId)
+            }
+            console.log('konva数据更新成功')
+          }
+        })
       },
     },
   }

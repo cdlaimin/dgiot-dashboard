@@ -864,6 +864,8 @@
         )
         _this.subtopic = `thing/${_this.productid}/post`
         _this.topicKey = _this.$dgiotBus.topicKey(_this.router, _this.subtopic)
+        //
+        console.warn('订阅mqtt')
         // 订阅webscroket
         _this.$dgiotBus.$emit(`MqttSubscribe`, {
           router: this.router,
