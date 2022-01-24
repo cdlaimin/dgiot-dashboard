@@ -202,7 +202,7 @@
           // const { thing={},config } = await getProduct(args.id.split('_')[0])
           let params = {
             productid: args.id.split('_')[0],
-            shapeid: args.id.slice(11),
+            shapeid: args.id.slice(11).replace('_text', ''),
           }
           this.shapeid = args.id
           const {
@@ -646,7 +646,7 @@
           } else {
             this.reset(nobound)
             this.wmxData = []
-            this.sizeForm.name = args.id.split('_')[1]
+            this.sizeForm.name = args.text
             // this.sizeForm.dis = this.Shapeconfig.attrs.id
             this.sizeForm.isdis = true
           }

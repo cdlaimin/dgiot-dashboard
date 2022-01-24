@@ -237,8 +237,8 @@ const mutations = {
       randomXy,
     })
     canvas.layer.add(simpleText)
-    canvas.layer.batchDraw()
-    canvas.stage.batchDraw()
+    // canvas.layer.batchDraw()
+    // canvas.stage.batchDraw()
     addNodeEvent({
       type: 'handleChildren',
       stage: canvas.stage,

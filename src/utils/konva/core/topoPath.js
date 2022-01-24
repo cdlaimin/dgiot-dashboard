@@ -29,6 +29,7 @@ const topoPath = {
         text: args.findOne('Text').getAttr('text'),
       },
     }
+    console.error(args, 'args')
     console.log(params, 'bind_topo')
     Vue.prototype.$baseEventBus.$emit(params.busTopicKey, params.msg)
   },

@@ -240,6 +240,7 @@
             // ),
             data: this.viewInfo.data,
           })
+          console.error('this.viewInfo.data', this.viewInfo.data)
         } catch (e) {
           console.log(e)
         }

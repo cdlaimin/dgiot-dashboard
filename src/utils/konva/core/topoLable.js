@@ -21,13 +21,27 @@ const topoLable = {
     Vue.prototype.$baseEventBus.$emit(params.busTopicKey, params.msg)
   },
   on(args) {
+    console.error(args, 'args')
+    //  const msg =  {
+    //    type: 'bind_topo',
+    //    id: args.getAttr('id'),
+    //    text: args.findOne('Text').getAttr('text'),
+    // }
+    let id = ''
+    if (args.children) {
+      console.log(args.children)
+      args.children.forEach((topo) => {
+        id = topo.getAttr('id')
+      })
+    }
+    const msg = {
+      type: 'bind_topo',
+      id: id,
+      text: args.findOne('Text').getAttr('text'),
+    }
     const params = {
       busTopicKey: dgiotBus.topicKey('dgiot_thing', 'dgiotThing'),
-      msg: {
-        type: 'bind_topo',
-        id: args.getAttr('id'),
-        text: args.findOne('Text').getAttr('text'),
-      },
+      msg: msg,
     }
     console.log(params, 'bind_topo')
     // console.log(
@@ -140,7 +154,7 @@ const topoLable = {
     simpleLabel.add(
       new Konva.Text({
         hidden: thing.hidden ? thing.hidden : false,
-        id: thing.productid + '_text',
+        id: thing.productid + '_' + uuid(5) + '_text',
         text: 'dgiot_text' + topoId,
         fontSize: 24,
         lineHeight: 1.2,
