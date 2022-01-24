@@ -11,7 +11,7 @@
     "serve": "vue-cli-service serve",
     "test": "vue-cli-service lint --fix",
     "dgiot:install": "start ./pnpm.sh",
-    "build": "vue-cli-service build && mv dist dev",
+    "build": "vue-cli-service build",
     "fix-memory-limit": "cross-env LIMIT=4096 increase-memory-limit",
     "lint": "eslint --ext .js --fix&&vue-cli-service lint",
     "lint:fix": "vue-cli-service lint --fix",
