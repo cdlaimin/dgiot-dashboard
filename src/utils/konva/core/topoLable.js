@@ -29,6 +29,7 @@ const topoLable = {
         text: args.findOne('Text').getAttr('text'),
       },
     }
+    console.log(params, 'bind_topo')
     // console.log(
     //   params,
     //   Vue.prototype.$baseEventBus.$emit(params.busTopicKey, params.msg)
@@ -67,6 +68,7 @@ const topoLable = {
       x: randomXy(600, 30),
       y: randomXy(450, 10),
     }
+    const topoId = uuid(5)
     const topoThing = new Konva.Text({
       x: Axis.x,
       y: Axis.y,
@@ -99,7 +101,7 @@ const topoLable = {
         },
         {
           attrs: {
-            id: `${thing.productid}_${uuid(5)}`,
+            id: `${thing.productid}_${topoId}`,
             text: 'dgiot',
             // fontSize: 50,
             lineHeight: 1.2,
@@ -113,16 +115,15 @@ const topoLable = {
     console.log('topoLable')
     console.log(topoThing)
     // return topoLable
-
     var simpleLabel = new Konva.Label({
       name: 'thing',
       opacity: 0.75,
       x: Axis.x,
       y: Axis.y,
       draggable: true,
-      id: thing.productid + '_text' + uuid(5),
+      id: thing.productid + '_text' + topoId,
       attrs: {
-        id: thing.productid + '_text' + uuid(5),
+        id: thing.productid + '_text' + topoId,
         name: 'thing',
         x: Axis.x,
         y: Axis.y,
@@ -140,7 +141,7 @@ const topoLable = {
       new Konva.Text({
         hidden: thing.hidden ? thing.hidden : false,
         id: thing.productid + '_text',
-        text: 'dgiot_text' + uuid(5),
+        text: 'dgiot_text' + topoId,
         fontSize: 24,
         lineHeight: 1.2,
         padding: 10,

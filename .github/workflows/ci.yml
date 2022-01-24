@@ -28,7 +28,7 @@ jobs:
           npm install rimraf -g
           rimraf node_modules
           npm install
-          npm build
+          npm run build
       - name: cnpm 🚀
         run: |
           npm install -g cnpm --registry=https://registry.npmmirror.com
@@ -36,7 +36,7 @@ jobs:
           cnpm install rimraf -g
           rimraf node_modules
           cnpm install
-          cnpm build
+          cnpm run build
       - name: yarn 🚀
         run: |
           npm install --global yarn --registry https://registry.npmmirror.com
@@ -54,7 +54,7 @@ jobs:
           pnpm add -g rimraf
           rimraf node_modules
           pnpm install
-          pnpm build
+          pnpm run build
 
 
 
@@ -83,7 +83,7 @@ jobs:
           npm install rimraf -g
           rimraf node_modules
           npm install
-          npm build
+          npm run build
       - name: cnpm 🚀
         run: |
           npm install -g cnpm --registry=https://registry.npmmirror.com
@@ -91,7 +91,7 @@ jobs:
           cnpm install rimraf -g
           rimraf node_modules
           cnpm install
-          cnpm build
+          cnpm run build
       - name: yarn 🚀
         run: |
           npm install --global yarn --registry https://registry.npmmirror.com
@@ -109,4 +109,4 @@ jobs:
           pnpm add -g rimraf
           rimraf node_modules
           pnpm install
-          pnpm build
+          pnpm run build
