@@ -890,17 +890,15 @@ export default {
         this.childrenForm.device = ''
       })
     },
-    deviceToDetail(row) {
-      console.log('row', row)
-      this.$router.push({
-        path: '/roles/editdevices',
-        query: {
-          deviceid: row.objectId,
-          nodeType: row.nodeType,
-          ischildren: 'false',
-        },
-      })
-    },
+    // deviceToDetail(row) {
+    //   console.log('row', row)
+    //   const query = {
+    //     deviceid: row.objectId,
+    //     nodeType: row.nodeType,
+    //     ischildren: 'false',
+    //   }
+    //   this.$router.push({ path: this.$route.path, query })
+    // },
     loadmore() {
       this.dirstart++
       this.checkProduct(this.selectproduct)

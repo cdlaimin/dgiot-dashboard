@@ -7,7 +7,7 @@ specifiers:
   '@commitlint/config-conventional': 14.1.0
   '@dgiot/dgiot-component': 0.0.3
   '@dgiot/dgiot-icons': 0.0.19
-  '@dgiot/dgiot-monaco': ^0.1.6
+  '@dgiot/dgiot-monaco': ^0.1.7
   '@dgiot/dgiot-mqtt-dashboard': 1.1.5
   '@jiaminghi/c-render': ^0.4.3
   '@jiaminghi/charts': ^0.2.18
@@ -63,7 +63,7 @@ specifiers:
   logrocket-vuex: ^0.0.3
   mammoth: ^1.4.19
   mini-css-extract-plugin: 2.4.4
-  monaco-editor-webpack-plugin: 6.0.0
+  monaco-editor-webpack-plugin: ^3.1.0
   node-cmd: ^5.0.0
   npm-run-all: ^4.1.5
   plop: ^2.7.6
@@ -102,7 +102,7 @@ dependencies:
   '@babel/helper-plugin-utils': 7.14.5
   '@dgiot/dgiot-component': 0.0.3_webpack@4.46.0
   '@dgiot/dgiot-icons': 0.0.19
-  '@dgiot/dgiot-monaco': 0.1.6_webpack@4.46.0
+  '@dgiot/dgiot-monaco': 0.1.7_webpack@4.46.0
   '@dgiot/dgiot-mqtt-dashboard': 1.1.5_webpack@4.46.0
   '@jiaminghi/c-render': 0.4.3
   '@jiaminghi/charts': 0.2.18
@@ -131,7 +131,7 @@ dependencies:
   logrocket: 2.1.3
   logrocket-vuex: 0.0.3
   mammoth: 1.4.19
-  monaco-editor-webpack-plugin: 6.0.0_webpack@4.46.0
+  monaco-editor-webpack-plugin: 3.1.0_webpack@4.46.0
   node-cmd: 5.0.0
   npm-run-all: 4.1.5
   plop: 2.7.6
@@ -1642,13 +1642,13 @@ packages:
       vue: 2.6.14
     dev: false
 
-  /@dgiot/dgiot-monaco/0.1.6_webpack@4.46.0:
-    resolution: {integrity: sha512-IXVH0rvfkpxHCr89rmsQ1SOBavkCb32mj3WX7OibtMwn1fZ76/OE87+/q6enXSXqqT5H2Ax2+GDiEhJbZ6COkg==}
+  /@dgiot/dgiot-monaco/0.1.7_webpack@4.46.0:
+    resolution: {integrity: sha512-j6f+eloKjwsaq4l5H9FAlxmIFWMPzQq+E7ZDLFaAegLdz/f+1f+J0rf+Y4nWcMPBmuk2ZD9/rz4bAXX01ENSSg==}
     dependencies:
       core-js: 3.19.1
       font-awesome: 4.7.0
-      monaco-editor: 0.30.1
-      monaco-editor-webpack-plugin: 6.0.0_e4146de625aad8e6c67af0b29262186e
+      monaco-editor: 0.24.0
+      monaco-editor-webpack-plugin: 3.1.0_cd60261b949c50c61212a99568a6e9ca
       vue: 2.6.14
     transitivePeerDependencies:
       - webpack
@@ -3450,11 +3450,11 @@ packages:
     dev: false
 
   /big.js/3.2.0:
-    resolution: {integrity: sha1-pfwpi4G54Nyi5FiCR4S2XFK6WI4=, tarball: big.js/download/big.js-3.2.0.tgz}
+    resolution: {integrity: sha512-+hN/Zh2D08Mx65pZ/4g5bsmNiZUuChDiQfTUQ7qJr4/kuopCr88xZsAXv6mBoZEsUI4OuGHlX59qE94K2mMW8Q==}
     dev: true
 
   /big.js/5.2.2:
-    resolution: {integrity: sha1-ZfCvOC9Xi83HQr2cKB6cstd2gyg=, tarball: big.js/download/big.js-5.2.2.tgz}
+    resolution: {integrity: sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==}
 
   /binary-extensions/1.13.1:
     resolution: {integrity: sha1-WYr+VHVbKGilMw0q/51Ou1Mgm2U=, tarball: binary-extensions/download/binary-extensions-1.13.1.tgz}
@@ -3909,7 +3909,7 @@ packages:
       supports-color: 5.5.0
 
   /chalk/3.0.0:
-    resolution: {integrity: sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg==, tarball: chalk/download/chalk-3.0.0.tgz}
+    resolution: {integrity: sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg==}
     engines: {node: '>=8'}
     dependencies:
       ansi-styles: 4.3.0
@@ -5746,12 +5746,12 @@ packages:
     resolution: {integrity: sha1-6Bj9ac5cz8tARZT4QpY79TFkzDc=, tarball: emoji-regex/download/emoji-regex-8.0.0.tgz}
 
   /emojis-list/2.1.0:
-    resolution: {integrity: sha1-TapNnbAPmBmIDHn6RXrlsJof04k=, tarball: emojis-list/download/emojis-list-2.1.0.tgz}
+    resolution: {integrity: sha1-TapNnbAPmBmIDHn6RXrlsJof04k=}
     engines: {node: '>= 0.10'}
     dev: true
 
   /emojis-list/3.0.0:
-    resolution: {integrity: sha1-VXBmIEatKeLpFucariYKvf9Pang=, tarball: emojis-list/download/emojis-list-3.0.0.tgz}
+    resolution: {integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==}
     engines: {node: '>= 4'}
 
   /encodeurl/1.0.2:
@@ -8391,18 +8391,18 @@ packages:
     dev: true
 
   /json5/0.5.1:
-    resolution: {integrity: sha512-4xrs1aW+6N5DalkqSVA8fxh458CXvR99WU8WLKmq4v8eWAL86Xo3BVqyd3SkA9wEVjCMqyvvRRkshAdOnBp5rw==, tarball: json5/download/json5-0.5.1.tgz}
+    resolution: {integrity: sha1-Hq3nrMASA0rYTiOWdn6tn6VJWCE=}
     hasBin: true
     dev: true
 
   /json5/1.0.1:
-    resolution: {integrity: sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==, tarball: json5/download/json5-1.0.1.tgz}
+    resolution: {integrity: sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==}
     hasBin: true
     dependencies:
       minimist: 1.2.5
 
   /json5/2.2.0:
-    resolution: {integrity: sha512-f+8cldu7X/y7RAJurMEJmdoKXGB/X550w2Nr3tTbezL6RwEE/iMcm+tZnXeoZtKuOq6ft8+CqzEkrIgx1fPoQA==, tarball: json5/download/json5-2.2.0.tgz}
+    resolution: {integrity: sha512-f+8cldu7X/y7RAJurMEJmdoKXGB/X550w2Nr3tTbezL6RwEE/iMcm+tZnXeoZtKuOq6ft8+CqzEkrIgx1fPoQA==}
     engines: {node: '>=6'}
     hasBin: true
     dependencies:
@@ -8677,7 +8677,7 @@ packages:
     engines: {node: '>=4.3.0 <5.0.0 || >=5.10'}
 
   /loader-utils/0.2.17:
-    resolution: {integrity: sha1-+G5jdNQyBabmxg6RlvF8Apm/s0g=, tarball: loader-utils/download/loader-utils-0.2.17.tgz}
+    resolution: {integrity: sha1-+G5jdNQyBabmxg6RlvF8Apm/s0g=}
     dependencies:
       big.js: 3.2.0
       emojis-list: 2.1.0
@@ -8686,7 +8686,7 @@ packages:
     dev: true
 
   /loader-utils/1.4.0:
-    resolution: {integrity: sha1-xXm140yzSxp07cbB+za/o3HVphM=, tarball: loader-utils/download/loader-utils-1.4.0.tgz}
+    resolution: {integrity: sha512-qH0WSMBtn/oHuwjy/NucEgbx5dbxxnxup9s4PVXJUDHZBQY+s0NWA9rJf53RBnQZxfch7euUui7hpoAPvALZdA==}
     engines: {node: '>=4.0.0'}
     dependencies:
       big.js: 5.2.2
@@ -8694,7 +8694,7 @@ packages:
       json5: 1.0.1
 
   /loader-utils/2.0.2:
-    resolution: {integrity: sha1-1uO0+4GHByGuTghoqxHdY4NowSk=, tarball: loader-utils/download/loader-utils-2.0.2.tgz}
+    resolution: {integrity: sha512-TM57VeHptv569d/GKh6TAYdzKblwDNiumOdkFnejjD0XwTH87K90w3O7AiJRqdQoXygvi1VQTJTLGhJl7WqA7A==}
     engines: {node: '>=8.9.0'}
     dependencies:
       big.js: 5.2.2
@@ -9536,25 +9536,29 @@ packages:
     resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==, tarball: moment/download/moment-2.29.1.tgz}
     dev: false
 
-  /monaco-editor-webpack-plugin/6.0.0_e4146de625aad8e6c67af0b29262186e:
-    resolution: {integrity: sha1-YolWzhhRr6Kl9siNDsuyTppESJg=, tarball: monaco-editor-webpack-plugin/download/monaco-editor-webpack-plugin-6.0.0.tgz}
+  /monaco-editor-webpack-plugin/3.1.0_cd60261b949c50c61212a99568a6e9ca:
+    resolution: {integrity: sha512-TP5NkCAV0OeFTry5k/d60KR7CkhTXL4kgJKtE3BzjgbDb5TGEPEhoKmHBrSa6r7Oc0sNbPLZhKD/TP2ig7A+/A==}
     peerDependencies:
-      monaco-editor: 0.30.x
+      monaco-editor: 0.22.x || 0.23.x || 0.24.x
       webpack: ^4.5.0 || 5.x
     dependencies:
       loader-utils: 2.0.2
-      monaco-editor: 0.30.1
+      monaco-editor: 0.24.0
       webpack: 4.46.0
     dev: false
 
-  /monaco-editor-webpack-plugin/6.0.0_webpack@4.46.0:
-    resolution: {integrity: sha1-YolWzhhRr6Kl9siNDsuyTppESJg=, tarball: monaco-editor-webpack-plugin/download/monaco-editor-webpack-plugin-6.0.0.tgz}
+  /monaco-editor-webpack-plugin/3.1.0_webpack@4.46.0:
+    resolution: {integrity: sha512-TP5NkCAV0OeFTry5k/d60KR7CkhTXL4kgJKtE3BzjgbDb5TGEPEhoKmHBrSa6r7Oc0sNbPLZhKD/TP2ig7A+/A==}
     peerDependencies:
-      monaco-editor: 0.30.x
+      monaco-editor: 0.22.x || 0.23.x || 0.24.x
       webpack: ^4.5.0 || 5.x
     dependencies:
       loader-utils: 2.0.2
       webpack: 4.46.0
+    dev: false
+
+  /monaco-editor/0.24.0:
+    resolution: {integrity: sha512-o1f0Lz6ABFNTtnEqqqvlY9qzNx24rQZx1RgYNQ8SkWkE+Ka63keHH/RqxQ4QhN4fs/UYOnvAtEUZsPrzccH++A==}
     dev: false
 
   /monaco-editor/0.30.1:

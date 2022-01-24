@@ -1,0 +1,112 @@
+name: ci
+on:
+  push
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: Cache pnpm modules  🚀
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-pnpm-modules
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ matrix.node-version }}-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{ matrix.node-version }}-
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.3.0
+          run_install: false
+      - name: npm 🚀
+        run: |
+          npm config set registry https://registry.npmmirror.com
+          npm -v
+          npm install rimraf -g
+          rimraf node_modules
+          npm install
+          npm build
+      - name: cnpm 🚀
+        run: |
+          npm install -g cnpm --registry=https://registry.npmmirror.com
+          cnpm -v
+          cnpm install rimraf -g
+          rimraf node_modules
+          cnpm install
+          cnpm build
+      - name: yarn 🚀
+        run: |
+          npm install --global yarn --registry https://registry.npmmirror.com
+          yarn config set registry https://registry.npmmirror.com
+          yarn -v
+          yarn global add rimraf
+          rimraf node_modules
+          yarn install
+          yarn build
+      - name: pnpm 🚀
+        run: |
+          npm install --global pnpm --registry https://registry.npmmirror.com
+          pnpm config set registry https://registry.npmmirror.com
+          pnpm -v
+          pnpm add -g rimraf
+          rimraf node_modules
+          pnpm install
+          pnpm build
+
+
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: cache pnpm modules  🚀
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-pnpm-modules
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ matrix.node-version }}-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{ matrix.node-version }}-
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.3.0
+          run_install: false
+      - name: npm 🚀
+        run: |
+          npm config set registry https://registry.npmmirror.com
+          npm -v
+          npm install rimraf -g
+          rimraf node_modules
+          npm install
+          npm build
+      - name: cnpm 🚀
+        run: |
+          npm install -g cnpm --registry=https://registry.npmmirror.com
+          cnpm -v
+          cnpm install rimraf -g
+          rimraf node_modules
+          cnpm install
+          cnpm build
+      - name: yarn 🚀
+        run: |
+          npm install --global yarn --registry https://registry.npmmirror.com
+          yarn config set registry https://registry.npmmirror.com
+          yarn -v
+          yarn global add rimraf
+          rimraf node_modules
+          yarn install
+          yarn build
+      - name: pnpm 🚀
+        run: |
+          npm install --global pnpm --registry https://registry.npmmirror.com
+          pnpm config set registry https://registry.npmmirror.com
+          pnpm -v
+          pnpm add -g rimraf
+          rimraf node_modules
+          pnpm install
+          pnpm build

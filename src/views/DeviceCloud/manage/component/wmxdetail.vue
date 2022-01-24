@@ -1,6 +1,12 @@
 <!-- 物模型详情组件 -->
 <template>
   <div class="wmxheader">
+    <vab-input
+      ref="uploadFinish"
+      :params="inputParams"
+      @fileInfo="fileInfo"
+      @files="files"
+    />
     <el-form
       ref="sizeForm"
       label-position="left"
@@ -119,15 +125,10 @@
               <el-col :span="12">
                 <el-form-item label="图标" prop="precision">
                   <el-avatar
+                    :key="sizeForm.ico"
                     :size="100"
                     :src="$FileServe + sizeForm.ico"
                     @click.native="uploadCkick('userinfo.avatar')"
-                  />
-                  <vab-input
-                    ref="uploadFinish"
-                    :params="inputParams"
-                    @fileInfo="fileInfo"
-                    @files="files"
                   />
                 </el-form-item>
               </el-col>
@@ -1281,8 +1282,9 @@
         dgiotlog.log(type)
       },
       fileInfo(info) {
-        dgiotlog.error('========================', info)
+        dgiotlog.log('========================', info)
         this.sizeForm.ico = info.path
+        console.log('========================path', this.sizeForm.ico)
       },
       uploadCkick(type) {
         this.upNodeType = type

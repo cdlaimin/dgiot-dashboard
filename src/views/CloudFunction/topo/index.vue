@@ -229,14 +229,16 @@
       },
       saveKonvaitem() {},
       async _updataTopo(objectId) {
+        this.viewInfo.data.konva = { Stage: JSON.parse(canvas.stage.toJSON()) }
         try {
           const res = await putView(objectId, {
-            data: _.merge(
-              {
-                konva: { Stage: JSON.parse(canvas.stage.toJSON()) },
-              },
-              this.viewInfo.data
-            ),
+            // data: _.merge(
+            //   {
+            //     konva: { Stage: JSON.parse(canvas.stage.toJSON()) },
+            //   },
+            //   this.viewInfo.data
+            // ),
+            data: this.viewInfo.data,
           })
         } catch (e) {
           console.log(e)

@@ -147,7 +147,10 @@
             console.info('url', url)
             // 零时解决
             // 将/lite /dev 替换为空
-            return axios(url.replace('/lite/', '/').replace('/dev/', '/'), config)
+            return axios(
+              url.replace('/lite/', '/').replace('/dev/', '/'),
+              config
+            )
           },
           isCancel: (e) => axios.isCancel(e),
           alert,
