@@ -39,7 +39,7 @@ jobs:
           pnpm config set registry https://registry.npmmirror.com
           pnpm -v
           pnpm add -g rimraf
-          rimraf node_modules
+          rimraf node_modules dev dist
           pnpm install
           pnpm build
       - name: npm 🚀
@@ -47,7 +47,7 @@ jobs:
           npm config set registry https://registry.npmmirror.com
           npm -v
           npm install rimraf -g
-          rimraf node_modules
+          rimraf node_modules dev dist
           npm install --legacy-peer-deps
           npm install
           npm run build
@@ -56,7 +56,7 @@ jobs:
           npm install -g cnpm --registry=https://registry.npmmirror.com
           cnpm -v
           cnpm install rimraf -g
-          rimraf node_modules
+          rimraf node_modules dev dist
           cnpm install
           cnpm run build
       - name: yarn 🚀
@@ -65,7 +65,7 @@ jobs:
           yarn config set registry https://registry.npmmirror.com
           yarn -v
           yarn global add rimraf
-          rimraf node_modules
+          rimraf node_modules dev dist
           yarn install
           yarn build
       - name: yarn2 🚀
@@ -74,9 +74,10 @@ jobs:
           yarn config set registry https://registry.npmmirror.com
           yarn -v
           yarn global add rimraf
+          rimraf node_modules dev dist
           yarn set version berry
+          yarn -v
           yarn policies set-version berry
-          rimraf node_modules
           yarn install
           yarn build
 
@@ -118,7 +119,7 @@ jobs:
           pnpm config set registry https://registry.npmmirror.com
           pnpm -v
           pnpm add -g rimraf
-          rimraf node_modules
+          rimraf node_modules dev dist
           pnpm install
           pnpm build
       - name: npm 🚀
@@ -126,7 +127,7 @@ jobs:
           npm config set registry https://registry.npmmirror.com
           npm -v
           npm install rimraf -g
-          rimraf node_modules
+          rimraf node_modules dev dist
           npm install --legacy-peer-deps
           npm install
           npm run build
@@ -135,7 +136,7 @@ jobs:
           npm install -g cnpm --registry=https://registry.npmmirror.com
           cnpm -v
           cnpm install rimraf -g
-          rimraf node_modules
+          rimraf node_modules dev dist
           cnpm install
           cnpm run build
       - name: yarn 🚀
@@ -144,7 +145,7 @@ jobs:
           yarn config set registry https://registry.npmmirror.com
           yarn -v
           yarn global add rimraf
-          rimraf node_modules
+          rimraf node_modules dev dist
           yarn install
           yarn build
       - name: yarn2 🚀
@@ -153,8 +154,9 @@ jobs:
           yarn config set registry https://registry.npmmirror.com
           yarn -v
           yarn global add rimraf
+          rimraf node_modules dev dist
           yarn set version berry
           yarn policies set-version berry
-          rimraf node_modules
+          yarn -v
           yarn install
           yarn build
