@@ -1312,8 +1312,9 @@
       }),
       changeThing(item) {
         let that = this
-        dgiotlog.log('this.sizeFormaaa', that.$refs.sizeForm.model.name)
-        dgiotlog.log('item', item)
+        console.log('this.sizeFormaaa', that.$refs.sizeForm.model.name)
+        console.log('item', item)
+        that.$dgiotBus.$emit('thingType', 'put')
         var obj = {}
         var daslist = []
         item.dataType.das.forEach((val) => {

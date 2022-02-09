@@ -396,21 +396,6 @@
             ? process.env.VUE_APP_URL
             : location.origin
         Cookies.set('fileServer', url, { expires: 60 * 1000 * 30 })
-        try {
-          console.log(
-            `addEventListener time: ${moment().format('YYYY:MM:DD HH:mm:ss')}`
-          )
-          // }
-          console.groupCollapsed(
-            `%c 单点登录日志 ${moment().format('YYYY:MM:DD HH:mm:ss')}`,
-            'color:#009a61; font-size: 28px; font-weight: 300'
-          )
-
-          console.info('id_token ->\n', Cookies.get('id_token'))
-          console.groupEnd()
-        } catch (error) {
-          console.log(error)
-        }
       },
       changeInfo(e) {
         this.$set(

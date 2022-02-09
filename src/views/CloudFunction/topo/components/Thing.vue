@@ -32,15 +32,17 @@
 
 <script>
   import wmxdetail from '@/views/DeviceCloud/manage/component/wmxdetail'
-  import { putProduct, putThing } from '@/api/Product'
+  import { postThing, putProduct, putThing } from '@/api/Product'
   import { edit_konva_thing, get_konva_thing } from '@/api/Topo'
   import { mapGetters, mapMutations } from 'vuex'
   import { putView, getView } from '@/api/View'
+
   export default {
     name: 'Thing',
     components: { wmxdetail },
     data() {
       return {
+        thingType: 'post',
         productconfig: {},
         thingDialog: false,
         infoData: 'Thing',
@@ -50,6 +52,8 @@
         viewInfo: {},
         das: [],
         daslist: [],
+        toponobound: [],
+        topokonvathing: {},
       }
     },
     computed: {
@@ -62,6 +66,11 @@
       this.$dgiotBus.$off('busUpdata')
       this.$dgiotBus.$on('busUpdata', () => {
         this.updataTopo()
+      })
+      this.$dgiotBus.$off('thingType')
+      this.$dgiotBus.$on('thingType', (type) => {
+        console.log(type, 'type things')
+        this.thingType = type
       })
       this.$baseEventBus.$off(
         this.$dgiotBus.topicKey('dgiot_thing', 'dgiotThing')
@@ -119,35 +128,77 @@
       // 提交
       submitForm(obj) {
         console.log('sizeForm', obj)
+        console.log('thingType', this.thingType)
+        console.log('toponobound', this.toponobound)
+        console.log('topokonvathing', this.topokonvathing)
+        console.info('如果type是put 走put，否则post')
+        // 判断 里是否有这个identifier
+        if (_.isEmpty(this.topokonvathing) == true) this.thingType = 'post'
+        else this.thingType = 'put'
+        this.toponobound.forEach((item) => {
+          console.log(obj.identifier, item.identifier, 'identifier')
+          if (obj.identifier == item.identifier) {
+            this.thingType = 'put'
+          }
+        })
+        console.log('thingType', this.thingType)
         let data = {
           item: obj,
           productid: this.$route.query.productid,
         }
-        putThing(data).then((res) => {
-          console.log('编辑', res)
-          if (res.code == 200) {
-            this.$message({
-              type: 'success',
-              message: '编辑成功',
-            })
-            let params = {
-              identifier: obj.identifier,
-              name: obj.name,
-              productid: this.$route.query.productid,
-              shapeid: this.shapeid,
+        if (this.thingType == 'post') {
+          postThing(data).then((res) => {
+            console.log('编辑', res)
+            if (res.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '编辑成功',
+              })
+              let params = {
+                identifier: obj.identifier,
+                name: obj.name,
+                productid: this.$route.query.productid,
+                shapeid: this.shapeid,
+              }
+              edit_konva_thing(params).then((res) => {
+                console.log(res)
+                // this.handleCloseSub()
+              })
+              this.wmxhandleClose()
+            } else {
+              this.$message({
+                type: 'warning',
+                message: '编辑失败' + res.msg,
+              })
             }
-            edit_konva_thing(params).then((res) => {
-              console.log(res)
-              // this.handleCloseSub()
-            })
-            this.wmxhandleClose()
-          } else {
-            this.$message({
-              type: 'warning',
-              message: '编辑失败' + res.msg,
-            })
-          }
-        })
+          })
+        } else {
+          putThing(data).then((res) => {
+            console.log('编辑', res)
+            if (res.code == 200) {
+              this.$message({
+                type: 'success',
+                message: '编辑成功',
+              })
+              let params = {
+                identifier: obj.identifier,
+                name: obj.name,
+                productid: this.$route.query.productid,
+                shapeid: this.shapeid,
+              }
+              edit_konva_thing(params).then((res) => {
+                console.log(res)
+                // this.handleCloseSub()
+              })
+              this.wmxhandleClose()
+            } else {
+              this.$message({
+                type: 'warning',
+                message: '编辑失败' + res.msg,
+              })
+            }
+          })
+        }
       },
       // 删除枚举型
       removeDomain(item) {
@@ -221,9 +272,11 @@
             loading.close()
             return
           }
-          const { konvathing, nobound } = data
+          const { konvathing = {}, nobound = [] } = data
           console.log(konvathing, 'konvathing')
           console.log(nobound, 'nobound')
+          this.toponobound = nobound
+          this.topokonvathing = konvathing
           if (Object.values(konvathing).length > 0) {
             console.log(`物模型存在这个属性`, konvathing)
             this.reset(nobound)
@@ -667,7 +720,7 @@
           identifier: '',
           strategy: '20',
           resource: 1,
-          dis: '',
+          dis: '0X10',
           dinumber: '528590',
           type: 'int',
           startnumber: '',
@@ -678,10 +731,12 @@
           false: '',
           falsevalue: 0,
           isread: 'r',
+          isshow: false,
           unit: '',
           string: '',
           date: 'String类型的UTC时间戳 (毫秒)',
           specs: {},
+          precision: 3,
           das: [],
           daslist: [],
           round: 'all',
@@ -693,6 +748,7 @@
           ],
           rate: 1,
           offset: 0,
+          order: 0,
           byteorder: 'big',
           protocol: 'normal',
           operatetype: 'holdingRegister',
@@ -701,6 +757,11 @@
           collection: '%s',
           control: '%q',
           nobound: nobound,
+          editdatatype: false,
+          iscount: '0',
+          countstrategy: 20,
+          countround: 'all',
+          countcollection: '%s',
         }
         this.setSizeForm(sizeForm)
       },

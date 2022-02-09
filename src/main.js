@@ -8,7 +8,6 @@ import router from './router'
 import { isPwa } from './config'
 import dgiotStore from '@dgiot/dgiot-mqtt-dashboard/src/store'
 import '@/dgiot'
-
 if (isPwa) require('./registerServiceWorker')
 process.env.NODE_ENV !== 'development'
   ? (Vue.config.productionTip = true)
