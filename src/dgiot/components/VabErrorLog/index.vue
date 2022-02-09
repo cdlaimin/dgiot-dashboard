@@ -14,23 +14,33 @@
       width="70%"
     >
       <el-table border :data="errorLogs">
-        <el-table-column label="报错路由">
+        <el-table-column
+          align="center"
+          label="报错路由"
+          show-overflow-tooltip
+          width="auto"
+        >
           <template #default="{ row }">
             <a :href="row.url" target="_blank">
               <el-tag type="success">{{ row.url }}</el-tag>
             </a>
           </template>
         </el-table-column>
-        <el-table-column label="错误信息">
+        <el-table-column
+          align="center"
+          label="错误信息"
+          show-overflow-tooltip
+          width="auto"
+        >
           <template #default="{ row }">
             <el-tag type="danger">
               {{ decodeUnicode(row.err.message) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="错误详情" width="120">
+        <el-table-column align="center" label="错误详情" show-overflow-tooltip>
           <template #default="{ row }">
-            <el-popover placement="top-start" trigger="hover">
+            <el-popover placement="top-start" trigger="click">
               {{ row.err.stack }}
               <template #reference>
                 <el-button>查看</el-button>
@@ -38,7 +48,7 @@
             </el-popover>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="380">
+        <el-table-column align="center" label="操作" width="auto">
           <template #default="{ row }">
             <a
               v-for="(item, index) in searchList"
@@ -46,10 +56,20 @@
               :href="item.url + decodeUnicode(row.err.message)"
               target="_blank"
             >
-              <el-button type="primary">
+              <el-button type="text">
                 {{ item.title }}
               </el-button>
             </a>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="issues反馈" width="auto">
+          <template #default="{ row }">
+            <el-button type="primary" @click="issues('github', row)">
+              github
+            </el-button>
+            <el-button type="primary" @click="issues('gitee', row)">
+              gitee
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -69,6 +89,7 @@
     name: 'VabErrorLog',
     data() {
       return {
+        isShow: window.name != 'dgiot_iframe',
         dialogTableVisible: false,
         title,
         abbreviation,
@@ -97,6 +118,28 @@
       ...mapActions({
         clearErrorLog: 'errorLog/clearErrorLog',
       }),
+      /**
+       * @Author: h7ml
+       * @Date: 2021-12-15 20:17:40
+       * @LastEditors:
+       * @param
+       * @return {Promise<void>}
+       * @Description:
+       */
+      async issues(type, params) {
+        const title = `%5BBug%20Report%5D%20${params.err.message}`
+        try {
+          type === 'github'
+            ? window.open(
+                `https://github.com/dgiot/dgiot/issues/new?assignees=h7ml&labels=bug&template=bug-report.md&title=${title}`
+              )
+            : window.open(
+                `https://gitee.com/dgiiot/dgiot/issues/new?issue%5Bassignee_id%5D=0&issue%5Bmilestone_id%5D=0&assignees=h7ml&labels=bug&title=${title}`
+              )
+        } catch (error) {
+          console.log(error)
+        }
+      },
       clearAll() {
         this.dialogTableVisible = false
         this.clearErrorLog()

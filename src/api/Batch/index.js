@@ -7,7 +7,7 @@
  */
 // https://docs.parseplatform.org/rest/guide/#batch-operations
 // http://132.232.119.105:5080/swagger/#/Data/post_batch
-import request from '@/utils/request'
+import request from '@/utils/request/request'
 import { Message } from 'element-ui'
 import store from '@/store'
 
@@ -44,7 +44,7 @@ export async function Batchdelete(method, tableClass, ObjectIdArr, body) {
     const params = {
       requests: requests,
     }
-    dgiotlog.log(params)
+    console.log(params)
     return request({
       url: `batch`,
       method: 'post',
@@ -58,20 +58,14 @@ export async function Batchdelete(method, tableClass, ObjectIdArr, body) {
  * @param {*}
  * @description  调用方法参考  src\views\equipment_management\platform_overview.vue
  */
-export async function batch(
-  data,
-  access_token = store.getters['user/token'],
-  _company = false
-) {
-  dgiotlog.log(data, 'axios from batch')
+export async function batch(data, access_token = store.getters['user/token']) {
+  console.log(data, 'axios from batch')
   return request({
     url: 'batch',
     method: 'post',
     headers: {
       accept: 'application/json',
       'Content-Type': 'application/json',
-      sessionToken: access_token,
-      _company: _company,
     },
     data: { requests: data },
   })

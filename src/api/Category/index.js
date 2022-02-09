@@ -5,13 +5,13 @@
 // * @Description: Category api
 // * @FilePath: src\api\Category\index.js
 // * @DocumentLink: http://prod.iotn2n.com/swagger/#/category
-import request from '@/utils/request'
+import request from '@/utils/request/request'
 import {
   create_object,
   del_object,
   get_object,
   update_object,
-} from '@/api/shuwa_parse'
+} from '@/api/Parse'
 
 export async function queryCategory(params) {
   return request({

@@ -53,7 +53,6 @@
           :cell-style="{ 'text-align': 'center' }"
           :data="tableData"
           :header-cell-style="{ 'text-align': 'center' }"
-          :height="height"
           style="width: 100%"
         >
           <el-table-column
@@ -304,7 +303,7 @@
         </div>
       </el-drawer>
     </div>
-    <VabRender v-show="false" :config="config" :loading="true" />
+    <!--    <VabRender v-show="false" :config="config" :loading="true" />-->
   </div>
 </template>
 <script>
@@ -319,7 +318,7 @@
   import { ExportParse, ImportParse } from '@/api/Export'
   import { queryProductTemplet } from '@/api/ProductTemplet'
   import { queryCategory } from '@/api/Category'
-  import { post_tree } from '@/api/Data'
+  import { post_tree } from '@/api/Logs'
 
   const context = require.context('./component/profile', true, /\.vue$/)
   let res_components = {}

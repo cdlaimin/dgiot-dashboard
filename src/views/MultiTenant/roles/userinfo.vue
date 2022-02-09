@@ -6,6 +6,7 @@
           <el-card shadow="hover">
             <div class="personal-center-user-info">
               <el-avatar
+                shape="square"
                 :size="100"
                 :src="$FileServe + avatar"
                 @click.native="uploadCkick('userinfo.avatar')"
@@ -52,15 +53,12 @@
                     :model="userinfo"
                     :rules="registerRules"
                   >
-                    <el-form-item label="姓名">
-                      <el-input v-model="username" />
+                    <el-form-item label="用户名">
+                      <el-input v-model="username" readonly />
                     </el-form-item>
-                    <el-form-item label="昵称">
+                    <el-form-item label="姓名">
                       <el-input v-model="nick" />
                     </el-form-item>
-                    <!-- <el-form-item label="objectId">
-                      <el-input v-model="userinfo.objectId" disabled />
-                    </el-form-item> -->
                     <el-form-item label="性别">
                       <el-select v-model="userinfo.sex" style="width: 100%">
                         <el-option label="保密" value="保密" />
@@ -219,7 +217,7 @@
 </template>
 <script>
   import { mapGetters, mapMutations } from 'vuex'
-  import { isPhone } from '@/utils/validate'
+  import { isPhone } from '@/utils/data/validate'
   import { putUser } from '@/api/User'
   import { putProject } from '@/api/Project'
 

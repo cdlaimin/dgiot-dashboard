@@ -409,7 +409,7 @@
             skip: args.skip,
             order: args.order,
             count: this.queryForm.count,
-            // keys: 'time,msg,domain',
+            // keys: 'Time,msg,domain',
             include: '',
             where: {
               deviceid: this.deviceid ? this.deviceid : '',

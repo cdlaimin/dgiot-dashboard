@@ -1,7 +1,7 @@
 import { messageDuration } from '@/config'
 import { Loading, Message, MessageBox, Notification } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/token'
+import { getToken } from '@/utils/data/token'
 import i18n from '@/i18n'
 
 const token = store.getters['user/token']
@@ -181,16 +181,16 @@ Vue.prototype.$baseNotify = (message, title, type, position, duration) => {
  * @param {*} formType
  */
 Vue.prototype.$baseTableHeight = (formType) => {
-  // let height = window.innerHeight
-  // let paddingHeight = 291
-  // const formHeight = 60
-  //
-  // if ('number' == typeof formType) {
-  //   height = height - paddingHeight - formHeight * formType
-  // } else {
-  //   height = height - paddingHeight
-  // }
-  // return height
+  let height = window.innerHeight
+  let paddingHeight = 291
+  const formHeight = 60
+
+  if ('number' == typeof formType) {
+    height = height - paddingHeight - formHeight * formType
+  } else {
+    height = height - paddingHeight
+  }
+  return height
 }
 
 /**

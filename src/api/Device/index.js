@@ -6,7 +6,7 @@
  * @Description: In User Settings Edit
  * @FilePath: \dgiot-dashboard\src\api\Device\index.js
  */
-import request from '@/utils/request'
+import request from '@/utils/request/request'
 import {
   create_object,
   del_object,
@@ -14,7 +14,7 @@ import {
   query_object,
   query_object_header,
   update_object,
-} from '@/api/shuwa_parse'
+} from '@/api/Parse'
 
 export async function queryDevice(params) {
   return query_object('Device', params)
@@ -23,7 +23,6 @@ export async function queryDevice(params) {
 export async function querycompanyDevice(params, access_token) {
   return query_object_header('Device', params, {
     sessionToken: access_token,
-    _company: true,
   })
 }
 
@@ -72,8 +71,8 @@ export async function getTdDevice(objectId) {
     order: '-createdAt',
     where: { objectId: objectId },
   }
-  // dgiotlog.info("params", initData)
-  // dgiotlog.log(new Date())
+  // console.info("params", initData)
+  // console.log(new Date())
   return request({
     url: `device`,
     method: 'post',

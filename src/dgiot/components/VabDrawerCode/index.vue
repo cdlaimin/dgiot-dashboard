@@ -36,7 +36,7 @@
         <vab-monaco-plus
           ref="monacoCode"
           :codes="monacoCode"
-          :language="'json'"
+          :lang="'json'"
           :read-only="false"
           :theme="'vs-dark'"
         />
@@ -111,7 +111,7 @@
       }),
       toEditor(path) {
         this.set_amisJson(
-          JSON.parse(this.$refs.monacoCode.monacoEditor.getValue())
+          JSON.parse(this.$refs.monacoCode.$refs.monacoEditor.editor.getValue())
         )
         //
         this.$router.push({
@@ -120,7 +120,7 @@
       },
       previewForm() {
         this.set_amisJson(
-          JSON.parse(this.$refs.monacoCode.monacoEditor.getValue())
+          JSON.parse(this.$refs.monacoCode.$refs.monacoEditor.editor.getValue())
         )
         this.loading = false
         this.drawer = false
@@ -128,18 +128,20 @@
         dgiotlog.log('在编辑器中的json')
         this.$dgiotBus.$emit(
           'setViewData',
-          JSON.parse(this.$refs.monacoCode.monacoEditor.getValue())
+          JSON.parse(this.$refs.monacoCode.$refs.monacoEditor.editor.getValue())
         )
-        console.table(JSON.parse(this.$refs.monacoCode.monacoEditor.getValue()))
+        console.table(
+          JSON.parse(this.$refs.monacoCode.$refs.monacoEditor.editor.getValue())
+        )
         dgiotlog.log('预览操作')
       },
       submitForm() {
         this.set_amisJson(
-          JSON.parse(this.$refs.monacoCode.monacoEditor.getValue())
+          JSON.parse(this.$refs.monacoCode.$refs.monacoEditor.editor.getValue())
         )
         this.$dgiotBus.$emit(
           'submitCode',
-          JSON.parse(this.$refs.monacoCode.monacoEditor.getValue())
+          JSON.parse(this.$refs.monacoCode.$refs.monacoEditor.editor.getValue())
         )
       },
     }, //如果页面有keep-alive缓存功能，这个函数会触发

@@ -11,13 +11,19 @@ import {
   get_object,
   query_object,
   update_object,
-} from '@/api/shuwa_parse'
+} from '@/api/Parse'
 
 export async function createArticle(params) {
   return create_object(
     'Article',
     // eslint-disable-next-line no-undef
     _.merge(params, {
+      ACL: {
+        '*': {
+          read: true,
+          write: false,
+        },
+      },
       timestamp: moment(new Date()).valueOf(),
     })
   )

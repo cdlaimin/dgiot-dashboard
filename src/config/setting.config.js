@@ -6,7 +6,6 @@
  * @FilePath: \dgiot-dashboard\src\config\setting.config.js
  * @Description:
  */
-const moment = require('moment')
 /**
  * @description 导出通用配置
  */
@@ -28,7 +27,18 @@ module.exports = {
   // 路由模式，可选值为 history 或 hash
   routerMode: 'hash',
   // 不经过token校验的路由，白名单路由建议配置到与login页面同级，如果需要放行带传参的页面，请使用query传参，配置时只配置path即可
-  routesWhiteList: ['/login', '/register', '/callback', '/404', '/403'],
+  routesWhiteList: [
+    '/login',
+    '/register',
+    '/callback',
+    '/404',
+    '/403',
+    '/datav',
+    '/jwtLogin',
+    '/quick',
+    '/lite',
+    '/dev',
+  ],
   // 加载时显示文字
   loadingText: '正在加载中...',
   // token名称
@@ -42,8 +52,16 @@ module.exports = {
   // session 即将过期是否刷新cookie
   refreshSession: true,
   // 不需要token请求的路由
-  noCookiePages: ['', '/login'],
-  localHost: ['tcloudbaseapp.com', 'gitee.io', 'github.io', 'vercel.app'],
+  noCookiePages: ['', '/login', '/jwtLogin', '/quick', '/lite', '/dev'],
+  localHost: [
+    'tcloudbaseapp.com',
+    'gitee.io',
+    'github.io',
+    'netlify.app',
+    'vercel.app',
+    'surge.sh',
+    'h7ml.icu',
+  ],
   // token过期刷新时间秒 当前设置为十分钟
   expiredTime: 60 * 10,
   // 部门token刷新后,页面刷新,不需要刷新的api规则
@@ -74,7 +92,7 @@ module.exports = {
   // 消息框消失时间
   messageDuration: 3000,
   // 在哪些环境下显示高亮错误
-  errorLog: ['development' /* , 'production' */],
+  errorLog: ['development'],
   // 是否开启登录拦截
   loginInterception: true,
   // 是否开启登录RSA加密
@@ -91,16 +109,21 @@ module.exports = {
   defaultOpeneds: [''],
   // 需要加loading层的请求，防止重复提交
   debounce: ['doEdit'],
+  // 生成环境中是否清除console信息
+  clearConsole: true,
   // 分栏布局和综合布局时，是否点击一级菜单默认开启第一个二级菜单
   openFirstMenu: true,
   // 代码生成机生成在view下的文件夹名称
   templateFolder: 'project',
   webpackBarName: '杭州数蛙科技有限公司',
   // 控制台输出的名称
-  dateTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+  // dateTime: moment().format('YYYY-MM-DD-HH:mm:ss'),
+  dateTime: Math.round(new Date() / 1000),
+  // 点击角色树时不重载页面的路由name
+  noReloadRouter: ['Workbench'],
   // 打包时间
   webpackBanner:
-    ' build: 杭州数蛙科技有限公司 \n copyright: dgiot-dashboard \n author: h7ml(h7ml@qq.com) \n time: ',
+    ' build: 杭州数蛙科技有限公司 \n copyright: dgiot-dashboard \n author: h7ml(h7ml@qq.com) \n Time: ',
   // webpack.BannerPlugin打包输出信息
   Keywords: '一站式物联网PaaS平台|物联网应用服务',
   // 网站seo关键字

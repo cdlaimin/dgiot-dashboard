@@ -18,19 +18,36 @@ const topoLable = {
         node: args,
       },
     }
-    dgiotlog.log('我是取证控件', params)
     Vue.prototype.$baseEventBus.$emit(params.busTopicKey, params.msg)
   },
   on(args) {
+    console.error(args, 'args')
+    //  const msg =  {
+    //    type: 'bind_topo',
+    //    id: args.getAttr('id'),
+    //    text: args.findOne('Text').getAttr('text'),
+    // }
+    let id = ''
+    if (args.children) {
+      console.log(args.children)
+      args.children.forEach((topo) => {
+        id = topo.getAttr('id')
+      })
+    }
+    const msg = {
+      type: 'bind_topo',
+      id: id,
+      text: args.findOne('Text').getAttr('text'),
+    }
     const params = {
       busTopicKey: dgiotBus.topicKey('dgiot_thing', 'dgiotThing'),
-      msg: {
-        type: 'bind_topo',
-        id: args.getAttr('id'),
-        text: args.findOne('Text').getAttr('text'),
-      },
+      msg: msg,
     }
-    // dgiotlog.log(params,Vue.prototype.$dgiotBus.emit(params.busTopicKey,params.msg))
+    console.log(params, 'bind_topo')
+    // console.log(
+    //   params,
+    //   Vue.prototype.$baseEventBus.$emit(params.busTopicKey, params.msg)
+    // )
     Vue.prototype.$baseEventBus.$emit(params.busTopicKey, params.msg)
   },
   contextMenu(args) {
@@ -38,7 +55,7 @@ const topoLable = {
       const contextNode = canvas.clickItem
       if (!_.isEmpty(contextNode)) {
         contextNode[`${args.handler}`]((e) => {
-          dgiotlog.log(e, 'contextNode')
+          console.log(e, 'contextNode')
           canvas.layer.batchDraw()
           // canvas.stage.batchDraw()
         })
@@ -48,9 +65,9 @@ const topoLable = {
       // canvas.stage.batchDraw()
       // if(args.handler === 'remove') contextNode.destroy()
     } else {
-      dgiotlog.log(args)
+      console.log(args)
     }
-    dgiotlog.log('contextNode args', args)
+    console.log('contextNode args', args)
     canvas.layer.batchDraw()
     canvas.stage.batchDraw()
   },
@@ -65,6 +82,7 @@ const topoLable = {
       x: randomXy(600, 30),
       y: randomXy(450, 10),
     }
+    const topoId = uuid(5)
     const topoThing = new Konva.Text({
       x: Axis.x,
       y: Axis.y,
@@ -97,7 +115,7 @@ const topoLable = {
         },
         {
           attrs: {
-            id: `${thing.productid}_${uuid(5)}`,
+            id: `${thing.productid}_${topoId}`,
             text: 'dgiot',
             // fontSize: 50,
             lineHeight: 1.2,
@@ -108,19 +126,18 @@ const topoLable = {
         },
       ],
     })
-    dgiotlog.log('topoLable')
-    dgiotlog.log(topoThing)
+    console.log('topoLable')
+    console.log(topoThing)
     // return topoLable
-
     var simpleLabel = new Konva.Label({
       name: 'thing',
       opacity: 0.75,
       x: Axis.x,
       y: Axis.y,
       draggable: true,
-      id: thing.productid + '_flow',
+      id: thing.productid + '_text' + topoId,
       attrs: {
-        id: thing.productid + '_flow',
+        id: thing.productid + '_text' + topoId,
         name: 'thing',
         x: Axis.x,
         y: Axis.y,
@@ -137,8 +154,8 @@ const topoLable = {
     simpleLabel.add(
       new Konva.Text({
         hidden: thing.hidden ? thing.hidden : false,
-        id: thing.productid + '_flow_text',
-        text: 'dgiot' + '_flow_text' + uuid(5),
+        id: thing.productid + '_' + uuid(5) + '_text',
+        text: 'dgiot_text' + topoId,
         fontSize: 24,
         lineHeight: 1.2,
         padding: 10,
@@ -146,11 +163,16 @@ const topoLable = {
         fill: 'white',
       })
     )
-    dgiotlog.log(simpleLabel)
+    console.log(simpleLabel)
     return simpleLabel
   },
   createdEvidence(args) {
-    dgiotlog.info('createdEvidence', args.path, args)
+    console.info(
+      'src/utils/konva/core/topoLable.js',
+      'createdEvidence',
+      args.path,
+      args
+    )
     const Axis = {
       x: 10 + args.path.index * 100 + canvas.randomXy(60, 10),
       y: 600 + canvas.randomXy(40, 10),

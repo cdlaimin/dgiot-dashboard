@@ -14,8 +14,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-*.lock
 *.idea
+*-lock.json
 
 # Editor directories and files
 .idea
@@ -24,6 +24,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*.tar.gz
 
 # Lock files
 
@@ -38,8 +39,13 @@ pnpm-debug.log*
 # config
 /gitbit
 /github
-src/config/developer.lock.js
-src/config/developer.config.js
+src/config/ignore
 # files
 public/assets/js/*
 public/assets/css/*
+swagger.json
+lite.sh
+/cli.config.js
+/lite
+/full
+/dev

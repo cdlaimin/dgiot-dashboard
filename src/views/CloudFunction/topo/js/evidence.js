@@ -6,15 +6,27 @@ import {
   postEvidence,
   putEvidence,
   delEvidence,
+  generatereport,
 } from '@/api/Evidence'
 import { queryView } from '@/api/View'
 import { uppyUpload } from '@/api/Upload'
+import canvas from '@/utils/konva/core/canvas'
+import { queryProduct } from '@/api/Product'
+import { queryMenu, Roletree } from '@/api/Menu'
+import { Permission } from '@/api/Permission'
 const VueAliplayerV2 = window['vue-aliplayer-v2'].default
 export default {
   name: 'Index',
-  components: { VueAliplayerV2 },
+  components: { 'vue-aliplayer-v2': VueAliplayerV2 },
   data() {
     return {
+      badgePath: canvas.info.Path ?? [],
+      options: {
+        autoplay: false,
+        width: '220px',
+        height: '180px',
+        margin: '0 auto',
+      },
       badge: {
         Unreviewed: [],
         Approved: [],
@@ -23,8 +35,8 @@ export default {
       taskType: 'review',
       nowItem: {},
       types: {
-        video: ['video', 'personal_video'],
-        audio: ['audio', 'volume_up'],
+        video: ['video', 'videocam_black'],
+        audio: ['audio', 'volume_mute'],
         image: ['image', 'image'],
         file: ['file', 'archive'],
       },
@@ -56,9 +68,8 @@ export default {
       evidenceDialog: false,
       task: {
         name: '',
+        profile: { message: '' },
       },
-      taskList: [],
-      taskFlag: false,
       asideShow: true,
       loading: false,
     }
@@ -85,11 +96,10 @@ export default {
         this.queryevidences()
       }
     )
-    this.fetchData()
     if (this.taskid) {
       this.queryTask(this.taskid)
       this.queryEvidence(this.taskid)
-      this.auditQuery('init')
+      this.auditQuery(0, 'init')
     }
   },
   beforeCreate() {}, //生命周期 - 创建之前
@@ -99,6 +109,7 @@ export default {
   beforeDestroy() {}, //生命周期 - 销毁之前
   destroyed() {}, //生命周期 - 销毁完成
   activated() {},
+  watch: {},
   methods: {
     ...mapActions({
       deleteTopo: 'topo/deleteTopo',
@@ -106,8 +117,139 @@ export default {
       setTreeFlag: 'settings/setTreeFlag',
       createdEvidence: 'topo/createdEvidence',
     }),
+    /**
+     * @Author:
+     * @Date: 2021-12-23 17:19:27
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description: 清空_evidence_delete_text
+     */
+    clearKonvaText() {
+      canvas.layer.find('Text').forEach((Text) => {
+        if (Text.attrs.id.indexOf('_evidence_delete_text') != 0) {
+          Text.remove()
+          Text.destroy()
+        }
+      })
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-22 15:53:39
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async getNumberEvidence(params) {
+      this.clearKonvaText()
+      canvas.info.badge = []
+      /**
+       * @description 图元数据 请求数据
+       * @type {{path: *[], batch: *[]}}
+       */
+      let evidence = { path: [], batch: [] }
+      params.forEach((item) => {
+        evidence.batch.push({
+          body: {
+            order: '-createdAt',
+            skip: 0,
+            count: 'objectId',
+            where: {
+              reportId: this.nowItem.objectId,
+              'original.controlid': item.attrs.id,
+            },
+          },
+          method: 'GET',
+          evidence: item.attrs.icon,
+          path: `/classes/Evidence`,
+        })
+        evidence.path.push(item)
+      })
+      try {
+        const batchNum = await this.$shuwa_batch({
+          requests: evidence.batch,
+        })
+        evidence.path.forEach((i, index) => {
+          const simpleText = new Konva.Text({
+            id: `${evidence.path[index].attrs.x}_evidence_delete_text`,
+            x: evidence.path[index].attrs.x,
+            y:
+              evidence.path[index].attrs.icon === 'volume_mute'
+                ? evidence.path[index].attrs.y
+                : evidence.path[index].attrs.y - 13,
+            text: batchNum[index].success.count ?? 0,
+            fontSize: 24,
+            fontFamily: 'Calibri',
+            fill: 'orange',
+          })
+          canvas.info.badge.push(simpleText)
+          canvas.layer.add(simpleText)
+        })
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
     async paginationQuery(queryPayload) {
       this.queryPayload = queryPayload
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-20 11:22:30
+     * @LastEditors: dext7r
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    clouseDraw() {
+      try {
+        this.evidenceDialog = false
+        this.auditDialog = false
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-16 21:13:11
+     * @LastEditors: dext7r
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async saveEvidences(objectId, index, row) {
+      console.log(objectId, index, row)
+      try {
+        const loading = this.$baseColorfullLoading()
+        const params = {
+          original: row.original,
+        }
+        const res = await putEvidence(objectId, params)
+        console.log(res)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request successfully'),
+          'success',
+          'vab-hey-message-success'
+        )
+        loading.close()
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
     },
     /**
      * @Author: h7ml
@@ -122,6 +264,7 @@ export default {
       try {
         const loading = this.$baseColorfullLoading()
         const res = await delEvidence(objectId)
+        this.getNumberEvidence(this.badgePath)
         this.$baseMessage(
           this.$translateTitle('alert.Data request successfully'),
           'success',
@@ -156,6 +299,7 @@ export default {
         }
         const res = await putEvidence(row.objectId, params)
         console.log(res)
+        this.auditQuery(0, 'init')
         this.$baseMessage(
           this.$translateTitle('alert.Data request successfully'),
           'success',
@@ -265,6 +409,7 @@ export default {
           'success',
           'vab-hey-message-success'
         )
+        this.getNumberEvidence(this.badgePath)
         loading.close()
       } catch (error) {
         console.log(error)
@@ -303,10 +448,12 @@ export default {
           this.ukey = results[0].devaddr
           console.info('-----------------this.ukey', this.ukey)
         } else {
-          this.$message.error(
+          this.$baseMessage(
             this.$translateTitle(
               'cloudTest.There is no uKey for this product, please contact the administrator'
-            )
+            ),
+            'error',
+            'vab-hey-message-error'
           )
         }
         loading.close()
@@ -379,10 +526,12 @@ export default {
         }
         const { results = [] } = await queryEvidence(_params)
         if (results?.length)
-          results.forEach((item) => {
+          _.filter(results, function (item) {
             item.original.path =
               '/dgiot_file' + item.original.path.split('/dgiot_file')[1]
+            return item.original.type !== 'avgs'
           })
+
         this.evidences = results
         this.evidenceDialog = true
         this.$baseMessage(
@@ -434,41 +583,6 @@ export default {
     },
     /**
      * @Author: h7ml
-     * @Date: 2021-11-25 20:44:31
-     * @LastEditors:
-     * @param
-     * @return {Promise<void>}
-     * @Description:
-     */
-    async fetchData() {
-      try {
-        const loading = this.$baseColorfullLoading()
-        this.queryPayload.include = 'product,parentId'
-        this.queryPayload.where = {
-          'profile.identifier': 'inspectionReportTemp',
-        }
-        const { count = 0, results = [] } = await queryDevice(this.queryPayload)
-        this.$nextTick(() => {
-          this.$refs['pagination'].ination.total = count
-        })
-        this.taskList = results
-        // this.$baseMessage(
-        //   this.$translateTitle('alert.Data request successfully'),
-        //   'success',
-        //   'vab-hey-message-success'
-        // )
-        loading.close()
-      } catch (error) {
-        console.log(error)
-        this.$baseMessage(
-          this.$translateTitle('alert.Data request error') + `${error}`,
-          'error',
-          'vab-hey-message-error'
-        )
-      }
-    },
-    /**
-     * @Author: h7ml
      * @Date: 2021-11-30 20:18:51
      * @LastEditors:
      * @param
@@ -488,24 +602,28 @@ export default {
           skip: 0,
           where: {
             'original.taskid': this.taskid,
+            reportId: { $ne: this.taskid },
           },
         }
-        const loading = this.$baseColorfullLoading()
+        // const loading = this.$baseColorfullLoading()
         if (num == 1) this.auditDialog = true
         const { results } = await queryEvidence(params)
-        results.forEach((item) => {
-          if (item.original.status == '未审核') this.badge.Unreviewed.push(item)
-          else if (item.original.status == '通过审核')
-            this.badge.Approved.push(item)
-          else this.badge.notapproved.push(item)
+        this.auditList = _.filter(results, function (item) {
+          return item.original.type !== 'avgs'
         })
-        this.auditList = results
-        this.$baseMessage(
-          this.$translateTitle('alert.Data request successfully'),
-          'success',
-          'vab-hey-message-success'
-        )
-        loading.close()
+        this.auditList.forEach((audit) => {
+          if (audit.original.status == '未审核')
+            this.badge.Unreviewed.push(audit)
+          else if (audit.original.status == '通过审核')
+            this.badge.Approved.push(audit)
+          else this.badge.notapproved.push(audit)
+        })
+        // this.$baseMessage(
+        //   this.$translateTitle('alert.Data request successfully'),
+        //   'success',
+        //   'vab-hey-message-success'
+        // )
+        // loading.close()
       } catch (error) {
         console.log(error)
         this.$baseMessage(
@@ -572,6 +690,15 @@ export default {
      * @Description:
      */
     async notapproved(params, step) {
+      // 判断下未审核任务的个数
+      if (this.badge.Unreviewed.length === this.auditList) {
+        this.$baseMessage(
+          '当前任务证据没有被审核',
+          'warning',
+          'vab-hey-message-warning'
+        )
+        return false
+      }
       try {
         const loading = this.$baseColorfullLoading()
         const finish = {
@@ -617,17 +744,27 @@ export default {
         null,
         async () => {
           try {
-            const loading = this.$baseColorfullLoading()
-            const finish = {
-              profile: _.merge(params.profile, {
-                step: step,
-              }),
+            if (this.auditList?.length) {
+              const loading = this.$baseColorfullLoading()
+              const finish = {
+                profile: _.merge(params.profile, {
+                  step: step,
+                }),
+              }
+              await generatereport(params.objectId)
+              const res = await putDevice(params.objectId, finish)
+              this.$router.push({
+                path: '/cloudTest/Task',
+              })
+              loading.close()
+            } else {
+              this.$baseMessage(
+                '未提交任何证据',
+                'error',
+                'vab-hey-message-error'
+              )
+              return
             }
-            const res = await putDevice(params.objectId, finish)
-            this.$router.push({
-              path: '/cloudTest/Task',
-            })
-            loading.close()
           } catch (error) {
             console.log(error)
             this.$baseMessage(
@@ -675,11 +812,15 @@ export default {
       })
       item.type = 'success'
       const { konva } = item.data
+      canvas.info.badge = []
       await this.initKonva({
         data: konva.Stage,
         id: 'konva',
       })
-      setTimeout(() => {
+      this.clearKonvaText()
+      await setTimeout(() => {
+        this.badgePath = []
+        canvas.info.Path = []
         this.loading = false
         const icon = {
           icon: 'timeline',
@@ -690,11 +831,16 @@ export default {
           _.merge(icon, {
             index: 7,
             // 灰色表示取证阶段，黄色表示审核阶段，绿色标识审核通过，红色标识审核不过
-            fill: 'grey',
+            fill: 'orange',
             productid: this.$route.query.taskid,
           })
         )
         this.deleteTopo(window.deletePath)
+        this.badgePath =
+          _.filter(canvas.info.Path, function (item) {
+            return item.attrs.icon !== 'timeline'
+          }) ?? []
+        this.getNumberEvidence(this.badgePath)
       }, 1000)
     },
   }, //如果页面有keep-alive缓存功能，这个函数会触发

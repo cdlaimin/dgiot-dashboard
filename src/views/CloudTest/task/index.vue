@@ -9,15 +9,242 @@
 -->
 <template>
   <div ref="custom-table" class="custom-table-container">
-    <el-drawer
-      v-drawerDrag
-      append-to-body
-      size="90%"
-      :visible.sync="dialogVisible"
-    >
-      <iframe :src="officeapps" style="width: 100%; height: 100%" />
-    </el-drawer>
     <div class="components">
+      <a-drawer
+        :mask-closable="false"
+        placement="right"
+        :visible="visible"
+        width="100%"
+        @close="saveHistorical(collectionInfo, thingcolumns, thingdata, true)"
+      >
+        <el-row :gutter="24">
+          <el-col :span="12">
+            <el-divider>采集数据</el-divider>
+            <el-table
+              :key="thingdata.length"
+              border
+              :data="thingdata"
+              style="min-height: 280px"
+            >
+              <el-table-column
+                align="center"
+                :label="$translateTitle('cloudTest.number')"
+                show-overflow-tooltip
+                width="auto"
+              >
+                <template #default="{ $index }">
+                  {{ $index + 1 }}
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-for="(item, index) in thingcolumns"
+                :key="index"
+                align="center"
+                :label="$translateTitle(`cloudTest.${item.label}`)"
+                :prop="item.prop"
+                show-overflow-tooltip
+                sortable
+                width="auto"
+              />
+            </el-table>
+          </el-col>
+          <el-col v-if="collectionInfo.name" :span="12">
+            <el-divider>检测信息</el-divider>
+            <el-card>
+              <div class="setting">
+                <el-button
+                  type="success"
+                  @click.native="collection(collectionInfo)"
+                >
+                  采集数据
+                </el-button>
+                <el-button
+                  :disabled="thingdata.length == 0"
+                  type="primary"
+                  @click.native="drawxnqx(collectionInfo.objectId, thingdata)"
+                >
+                  存储数据
+                </el-button>
+                <el-button
+                  type="info"
+                  @click.native="handleManagement(collectionInfo)"
+                >
+                  任务配置
+                </el-button>
+                <el-button @click.native="startOpc(collectionInfo)">
+                  任务下发
+                </el-button>
+                <el-button
+                  type="warning"
+                  @click.native="
+                    saveHistorical(
+                      collectionInfo,
+                      thingcolumns,
+                      thingdata,
+                      false
+                    )
+                  "
+                >
+                  保存数据
+                </el-button>
+                <el-button type="danger" @click="visible = false">
+                  退出采集
+                </el-button>
+              </div>
+              <a-descriptions bordered>
+                <a-descriptions-item label="当前时间" :span="12">
+                  {{ nowTime }}
+                </a-descriptions-item>
+                <a-descriptions-item label="检测台体" :span="8">
+                  {{ collectionInfo.profile.testbed }}
+                </a-descriptions-item>
+                <a-descriptions-item label="检测任务" :span="4">
+                  {{ collectionInfo.name }}
+                </a-descriptions-item>
+              </a-descriptions>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row :gutter="24">
+          <el-col :span="12" style="margin-top: 20px">
+            <el-divider>存储的数据</el-divider>
+            <el-table
+              :key="historyEvidence.length"
+              border
+              :data="historyEvidence"
+              style="min-height: 530px"
+            >
+              <el-table-column
+                align="center"
+                :label="$translateTitle('cloudTest.number')"
+                show-overflow-tooltip
+                width="auto"
+              >
+                <template #default="{ $index }">
+                  {{ $index + 1 }}
+                </template>
+              </el-table-column>
+              <el-table-column
+                v-for="(item, index) in historycolumns"
+                :key="index"
+                align="center"
+                :label="$translateTitle(`cloudTest.${item.label}`)"
+                :prop="item.prop"
+                show-overflow-tooltip
+                sortable
+                width="auto"
+              />
+              <el-table-column align="center" label="操作" width="60">
+                <template #default="{ row, $index }">
+                  <el-button
+                    class="el-icon-delete"
+                    type="text"
+                    @click.native="deleteHistory(row, $index)"
+                  />
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-col>
+          <el-col :span="12" style="margin-top: 20px">
+            <el-divider>其他数据</el-divider>
+            <el-tabs v-model="activeName1" @tab-click="tabHandleClick">
+              <el-tab-pane
+                :label="$translateTitle('equipment.realTime data')"
+                name="first"
+              >
+                <div class="thirdtb">
+                  <!--运行状态-->
+                  <el-row :key="thirdtbKey">
+                    <el-descriptions
+                      v-for="(value, key, index) in machinelist"
+                      :key="index"
+                      border
+                      :column="4"
+                      :title="key"
+                    >
+                      <el-descriptions-item
+                        v-for="(item, index) in value"
+                        :key="index"
+                      >
+                        <div style="height: 40px">
+                          <span style="font-size: 16px">
+                            {{ item.name }}
+                          </span>
+                          <span
+                            style="
+                              float: right;
+                              margin-top: 10px;
+                              margin-right: 15px;
+                            "
+                          >
+                            <el-image
+                              :src="item.imgurl"
+                              style="width: 60px; height: 60px"
+                            >
+                              <div
+                                slot="error"
+                                class="image-slot"
+                                style="width: 60px; height: 60px"
+                              >
+                                <i class="el-icon-picture-outline"></i>
+                              </div>
+                            </el-image>
+                          </span>
+                        </div>
+                        <div class="stla">
+                          <span :title="item.number | filterVal">
+                            {{ item.number | filterVal }}
+                          </span>
+                          <span v-if="item.unit" :title="item.unit">
+                            {{ item.unit }}
+                          </span>
+                        </div>
+                        <div class="ta">
+                          <span class="fontSize">
+                            {{ $translateTitle('equipment.updatetime') + ':' }}
+                          </span>
+                          <span class="fontSize" @click="print(machinelist)">
+                            {{ item.time }}
+                          </span>
+                        </div>
+                      </el-descriptions-item>
+                    </el-descriptions>
+                  </el-row>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane
+                :label="$translateTitle('equipment.chart')"
+                name="second"
+              >
+                <el-card>
+                  <el-image
+                    :key="drawxnqxPath"
+                    :preview-src-list="[$FileServe + drawxnqxPath]"
+                    :src="$FileServe + drawxnqxPath"
+                  >
+                    <div slot="error" class="image-slot">
+                      <el-image
+                        class="vab-data-empty"
+                        :src="
+                          require('../../../../public/assets/images/platform/assets/empty_images/data_empty.png')
+                        "
+                      />
+                    </div>
+                  </el-image>
+                </el-card>
+              </el-tab-pane>
+            </el-tabs>
+          </el-col>
+        </el-row>
+      </a-drawer>
+      <el-drawer
+        v-drawerDrag
+        append-to-body
+        size="80%"
+        :visible.sync="dialogVisible"
+      >
+        <iframe :src="officeapps" style="width: 100%; height: 100%" />
+      </el-drawer>
       <vab-dialog :show.sync="activePopShow">
         <h2 slot="title">
           {{ $translateTitle('cloudTest.addwordtask') }}
@@ -143,60 +370,11 @@
               type="primary"
               @click.native="activePopShow = !activePopShow"
             >
-              {{ $translateTitle('cloudTest.add') }}
+              {{ $translateTitle('cloudTest.add task') }}
             </el-button>
           </el-form-item>
         </el-form>
       </vab-query-form-left-panel>
-      <vab-query-form-right-panel>
-        <el-popover
-          ref="popover"
-          popper-class="custom-table-checkbox"
-          trigger="hover"
-        >
-          <el-radio-group v-model="lineHeight">
-            <el-radio label="medium">
-              {{ $translateTitle('cloudTest.medium') }}
-            </el-radio>
-            <el-radio label="small">
-              {{ $translateTitle('cloudTest.small') }}
-            </el-radio>
-            <el-radio label="mini">
-              {{ $translateTitle('cloudTest.mini') }}
-            </el-radio>
-          </el-radio-group>
-          <template #reference>
-            <el-button style="margin: 0 10px 10px 0 !important" type="primary">
-              <dgiot-icon icon="line-height" />
-              {{ $translateTitle('cloudTest.size') }}
-            </el-button>
-          </template>
-        </el-popover>
-        <el-popover popper-class="custom-table-checkbox" trigger="hover">
-          <el-checkbox-group v-model="checkList">
-            <vab-draggable :list="columns" v-bind="dragOptions">
-              <div v-for="(item, index) in columns" :key="item + index">
-                <dgiot-icon icon="drag-drop-line" />
-                <el-checkbox
-                  :disabled="item.disableCheck === true"
-                  :label="item.label"
-                >
-                  {{ $translateTitle(`cloudTest.${item.label}`) }}
-                </el-checkbox>
-              </div>
-            </vab-draggable>
-          </el-checkbox-group>
-          <template #reference>
-            <el-button
-              icon="el-icon-setting"
-              style="margin: 0 0 10px 0 !important"
-              type="primary"
-            >
-              {{ $translateTitle('cloudTest.Draggable column') }}
-            </el-button>
-          </template>
-        </el-popover>
-      </vab-query-form-right-panel>
     </vab-query-form>
     <el-table
       ref="tableSort"
@@ -210,7 +388,7 @@
         align="center"
         :label="$translateTitle('cloudTest.number')"
         show-overflow-tooltip
-        width="95"
+        width="auto"
       >
         <template #default="{ $index }">
           {{ $index + 1 }}
@@ -230,21 +408,21 @@
       <el-table-column
         align="center"
         :label="$translateTitle(`deviceLog.status`)"
-        show-overflow-tooltip
         width="auto"
       >
         <template #default="{ row }">
-          <el-tooltip
+          <el-popover
             v-show="row.profile.step == -1"
-            class="item"
-            :content="row.profile.message"
-            effect="dark"
             placement="top-start"
+            trigger="hover"
           >
-            <el-tag effect="dark" type="warning">
-              {{ $translateTitle('cloudTest.notapproved') }}
-            </el-tag>
-          </el-tooltip>
+            {{ row.profile.message }}
+            <template #reference>
+              <el-tag effect="dark" type="danger">
+                {{ $translateTitle('cloudTest.notapproved') }}
+              </el-tag>
+            </template>
+          </el-popover>
           <el-tag
             v-show="row.profile.step != -1"
             effect="dark"
@@ -274,7 +452,7 @@
       >
         <template #default="{ row }">
           <el-button
-            v-show="row.profile.step == 0"
+            v-show="row.profile.step == 0 && $loadsh.isEmpty(row.basedata)"
             size="mini"
             type="success"
             @click.native="handleManagement(row)"
@@ -282,12 +460,20 @@
             {{ $translateTitle(`task.Configuration`) }}
           </el-button>
           <el-button
-            v-show="row.profile.step == 0"
+            v-show="row.profile.step == 0 && !$loadsh.isEmpty(row.basedata)"
             size="mini"
             type="info"
             @click.native="taskStart(row)"
           >
             {{ $translateTitle(`task.start`) }}
+          </el-button>
+          <el-button
+            v-show="row.profile.step == 1 || row.profile.step == -1"
+            size="mini"
+            type="success"
+            @click.native="visibleInfo(row)"
+          >
+            {{ $translateTitle(`task.dataacquisition`) }}
           </el-button>
           <el-button
             v-show="row.profile.step == 1 || row.profile.step == -1"
@@ -301,30 +487,6 @@
                 : $translateTitle(`cloudTest.re-review`)
             }}
           </el-button>
-          <el-button
-            v-show="row.profile.step == 2"
-            size="mini"
-            type="primary"
-            @click.native="handleUnderreview(row.objectId)"
-          >
-            {{ $translateTitle(`product.Underreview`) }}
-          </el-button>
-          <el-button
-            v-show="row.profile.step == 3"
-            size="mini"
-            type="success"
-            @click.native="taskEnd(row)"
-          >
-            {{ $translateTitle(`concentrator.end`) }}
-          </el-button>
-          <el-button
-            v-show="row.profile.step >= 4"
-            size="mini"
-            type="primary"
-            @click.native="handleReport(row)"
-          >
-            {{ $translateTitle(`product.generate`) }}
-          </el-button>
           <!--          <el-button-->
           <!--            v-show="row.profile.step == 5"-->
           <!--            size="mini"-->
@@ -334,6 +496,7 @@
           <!--            {{ $translateTitle(`application.preview`) }}-->
           <!--          </el-button>-->
           <el-button
+            v-show="row.profile.step <= 1"
             size="mini"
             type="danger"
             @click.native="handleDelete(row.objectId)"
@@ -367,5 +530,8 @@
 <style>
   .el-divider__text {
     font-size: 18px;
+  }
+  .setting {
+    margin: 20px 0;
   }
 </style>

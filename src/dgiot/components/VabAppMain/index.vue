@@ -22,7 +22,6 @@
             <vab-keep-alive v-if="routerView" />
           </transition>
         </section>
-        <vab-footer />
       </div>
     </div>
   </multipane>
@@ -31,7 +30,6 @@
 <script>
   import { mapActions, mapGetters } from 'vuex'
   import VabProgress from 'nprogress'
-
   export default {
     name: 'VabAppMain',
     data() {
@@ -69,6 +67,7 @@
       },
     },
     created() {
+      this.$dgiotBus.$off('reload-router-view')
       const { showProgressBar } = this.theme
       // 单页面情况下重载路由
       this.$dgiotBus.$on('reload-router-view', () => {
@@ -109,21 +108,21 @@
   .custom-resizer > .pane ~ .pane {
   }
   .custom-resizer > .multipane-resizer {
-    margin: 0;
-    left: 0;
     position: relative;
+    left: 0;
+    margin: 0;
     &:before {
-      display: block;
-      content: '';
-      width: 3px;
-      height: 40px;
       position: absolute;
       top: 50%;
       left: 50%;
+      display: block;
+      width: 3px;
+      height: 40px;
       margin-top: -20px;
       margin-left: -1.5px;
-      border-left: 1px solid #ccc;
+      content: '';
       border-right: 1px solid #ccc;
+      border-left: 1px solid #ccc;
     }
     &:hover {
       &:before {

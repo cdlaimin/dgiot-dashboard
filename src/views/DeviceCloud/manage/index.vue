@@ -698,7 +698,7 @@
           </el-form>
           <!-- <label>地址：<input v-model="bmapfrom.keyword"></label> -->
           <baidu-map
-            ak="fnc5Z92jC7CwfBGz8Dk66E9sXEIYZ6TG"
+            :ak="secret.baidu.map"
             :center="center"
             :map-click="false"
             :scroll-wheel-zoom="true"
@@ -745,8 +745,7 @@
 <script>
   import { Promise } from 'q'
   import { Batchdelete } from '@/api/Batch'
-  import { queryDict } from '@/api/Direct/index.js'
-  import { delDict, getBatchNumer } from '@/api/Dict'
+  import { delDict, getBatchNumer, queryDict } from '@/api/Dict'
   import { mapGetters } from 'vuex'
   import {
     BaiduMap,
@@ -757,7 +756,7 @@
   } from 'vue-baidu-map'
   import { getProduct } from '@/api/Product/index.js'
   import { returnLogin } from '@/utils/utilwen'
-
+  import { secret } from '@/config/secret.config'
   var pcdata
   export default {
     components: {
@@ -781,6 +780,7 @@
         }
       }
       return {
+        secret: secret,
         productimg: '',
         bmapdialogVisible: false,
         onlineall: '',

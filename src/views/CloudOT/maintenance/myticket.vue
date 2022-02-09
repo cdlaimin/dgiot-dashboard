@@ -460,7 +460,7 @@
 </template>
 
 <script>
-  import { create_object, query_object, update_object } from '@/api/shuwa_parse'
+  import { create_object, query_object, update_object } from '@/api/Parse'
   import { batch } from '@/api/Batch'
   import { queryDevice } from '@/api/Device'
   import { mapGetters, mapMutations } from 'vuex'
@@ -574,18 +574,19 @@
       ...mapGetters({
         objectid: 'user/objectId',
         role: 'acl/role',
+        currentDepartment: 'user/currentDepartment',
         username: 'user/username',
       }),
       _deviceFlag: {
         get() {
-          dgiotlog.log(
+          console.log(
             'this.$store.state.global._deviceFlag',
             this.$store.state.global._deviceFlag
           )
           return this.$store.state.global._deviceFlag
         },
         set(v) {
-          dgiotlog.log(
+          console.log(
             'this.$store.state.global._deviceFlag',
             this.$store.state.global._deviceFlag,
             v
@@ -596,7 +597,7 @@
       aclObj() {
         let aclObj = {}
         this.role.map((e) => {
-          dgiotlog.log(e.name, '')
+          console.log(e.name, '')
           aclObj[`${'role' + ':' + e.name}`] = {
             read: true,
             write: true,
@@ -607,13 +608,13 @@
     },
     watch: {
       _deviceFlag: function (e) {
-        dgiotlog.log(e)
+        console.log(e)
         if (e == false) {
           this.fetchData()
         }
       },
       'queryForm.status': function (e) {
-        dgiotlog.log(e)
+        console.log(e)
         if (e != '') {
           this.queryForm.statusFlag = true
         } else {
@@ -622,9 +623,9 @@
       },
     },
     created() {
-      dgiotlog.log('role', this.role)
+      console.log('role', this.role)
 
-      dgiotlog.log('this.aclObj', this.aclObj)
+      console.log('this.aclObj', this.aclObj)
     },
     mounted() {
       // this.fetchData()
@@ -641,18 +642,18 @@
           path: 'ticket',
           filename: 'ticket' + `${moment().format('x')}.${extension}`,
         }
-        dgiotlog.log('extension', params)
+        console.log('extension', params)
         UploadImg(params)
           .then((res) => {
             if (res.data.url) {
               this.form.photo.push(res.data.url)
-              dgiotlog.log('上传成功的回调', res.data.url, this.form.photo)
+              console.log('上传成功的回调', res.data.url, this.form.photo)
             } else {
-              dgiotlog.log('no up url ', res)
+              console.log('no up url ', res)
             }
           })
           .catch((e) => {
-            dgiotlog.log('出错了', e)
+            console.log('出错了', e)
           })
       },
       submitForm(formName) {
@@ -660,7 +661,7 @@
           if (valid) {
             this.createdTicket(this.form)
           } else {
-            dgiotlog.log('error submit!!')
+            console.log('error submit!!')
             return false
           }
         })
@@ -672,6 +673,10 @@
         //   write: true,
         // }
         setAcl[this.objectid] = {
+          read: true,
+          write: true,
+        }
+        setAcl[`${'role' + ':' + this.currentDepartment.name}`] = {
           read: true,
           write: true,
         }
@@ -691,6 +696,7 @@
           //   className: '_User',
           // },
           // ACL: this.aclObj,
+          status: 0,
           ACL: _.merge(setAcl, this.aclObj),
           info: {
             photo: from.photo,
@@ -724,7 +730,7 @@
         const loading = this.$baseColorfullLoading()
         const res = await create_object('Maintenance', params)
         loading.close()
-        dgiotlog.log('res', res)
+        console.log('res', res)
         this.fetchData()
         this.dialogFormVisible = false
       },
@@ -736,7 +742,7 @@
         val.forEach((item) => {
           this.selectedList.push(item)
         })
-        dgiotlog.log(this.selectedList)
+        console.log(this.selectedList)
       },
       ...mapMutations({
         set_deviceFlag: 'global/set_deviceFlag',
@@ -751,7 +757,7 @@
        * @return {Promise<void>}
        */
       async batchExport(row) {
-        dgiotlog.log(row)
+        console.log(row)
         try {
           const params = {
             results: [],
@@ -761,7 +767,7 @@
           this.$convertRes2Blob(res)
           this.$message.success(this.$translateTitle('node.export success'))
         } catch (error) {
-          dgiotlog.log(error)
+          console.log(error)
           this.$message.error(
             this.$translateTitle('node.export error') + `${error}`
           )
@@ -785,7 +791,7 @@
             })
           })
         }
-        dgiotlog.log(batchParams, 'batchParams')
+        console.log(batchParams, 'batchParams')
         this.$baseConfirm(
           this.$translateTitle(
             'Maintenance.Are you sure you want to delete the current item'
@@ -828,7 +834,7 @@
             break
           default:
             return type
-            dgiotlog.log('other', type)
+            console.log('other', type)
         }
       },
       showInfo(row, ishard = false, isfooter = true) {
@@ -855,7 +861,7 @@
       },
       // async handleDelete(objectId) {
       //   const res = await del_object('Maintenance', objectId)
-      //   // dgiotlog.log('res', res)
+      //   // console.log('res', res)
       //   this.$message.success('删除成功')
       //   this.fetchData()
       // },
@@ -869,13 +875,14 @@
         this.Product = results
       },
       async fetchData(args = {}) {
-        dgiotlog.log(this.created % 2, this.created, 'this.created')
+        console.log(this.created % 2, this.created, 'this.created')
         if (!args.limit) {
           args = this.queryForm
         }
-        dgiotlog.log(this.queryForm, 'queryForm', args)
+        console.log(this.queryForm, 'queryForm', args)
         this.listLoading = false
         const loading = this.$baseColorfullLoading()
+        console.log(this.queryForm.status, this.queryForm.status == '')
         let params = {
           limit: args.limit,
           order: args.order,
@@ -888,9 +895,10 @@
             number: this.queryForm.number.length
               ? { $regex: this.queryForm.number }
               : { $ne: null },
-            status: this.queryForm.statusFlag
-              ? this.queryForm.status
-              : { $ne: 9 },
+            status:
+              this.queryForm.status.length == 0
+                ? { $ne: 9 }
+                : this.queryForm.status,
             'info.productid': this.queryForm.product.length
               ? this.queryForm.product
               : { $ne: '99' },
@@ -915,7 +923,7 @@
         }
         await query_object('Maintenance', params)
           .then((res) => {
-            dgiotlog.log(res, 'res')
+            console.log(res, 'res')
             const { results = [], count = 0 } = res
             this.list = results
             this.list.forEach((e) => {
@@ -933,10 +941,10 @@
             this.$message.error(`${e}`)
             loading.close()
           })
-        dgiotlog.log(this.list, 'this.list')
+        console.log(this.list, 'this.list')
       },
       async prodChange(e) {
-        dgiotlog.log(e)
+        console.log(e)
         this.Device = []
         this.Product.map((p) => {
           if (p.objectId == e) {
@@ -948,7 +956,7 @@
           where: { product: e },
         }
         const { results } = await queryDevice(params)
-        dgiotlog.log(results, '设备')
+        console.log(results, '设备')
         this.Device = results
       },
       deviceChange(e) {
@@ -957,11 +965,11 @@
             this.form.devicename = p.name
           }
         })
-        dgiotlog.log(this.form.productname, this.form.devicename)
+        console.log(this.form.productname, this.form.devicename)
       },
       dispatch() {
         this.$refs.changeinfo.$refs.step1.dispatchUser()
-        // dgiotlog.log()
+        // console.log()
       },
       async backChange(detail) {
         const { objectId, info } = detail
@@ -975,7 +983,7 @@
           status: 0,
           info: info,
         }
-        dgiotlog.log(objectId, params)
+        console.log(objectId, params)
         const res = await update_object('Maintenance', objectId, params)
         if (res.updatedAt) {
           this.set_deviceFlag(false)
@@ -993,7 +1001,7 @@
           status: 0,
           info: info,
         }
-        dgiotlog.log(objectId, params)
+        console.log(objectId, params)
         const res = await update_object('Maintenance', objectId, params)
         if (res.updatedAt) {
           this.set_deviceFlag(false)

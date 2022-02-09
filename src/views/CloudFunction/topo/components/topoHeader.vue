@@ -2,6 +2,7 @@
 <template>
   <div class="topo-header">
     <el-drawer
+      v-show="infoVisible"
       v-drawerDrag
       append-to-body
       size="100%"
@@ -40,10 +41,25 @@
               <p>{{ $translateTitle('konva.save') }}</p>
             </a>
           </a-dropdown>
-          <a-dropdown class="topo-header-top-query-left-panel-dropdown">
-            <a class="ant-dropdown-link" @click="eyeTopo">
+          <a-dropdown
+            v-if="Boolean($route.query.noTools)"
+            class="topo-header-top-query-left-panel-dropdown"
+          >
+            <a class="ant-dropdown-link" @click="preview">
               <a-icon type="eye" />
               <p>{{ $translateTitle('application.preview') }}</p>
+            </a>
+          </a-dropdown>
+          <a-dropdown
+            v-if="Boolean($route.query.noTools)"
+            class="topo-header-top-query-left-panel-dropdown"
+          >
+            <a
+              class="ant-dropdown-link"
+              @click="$router.push({ path: '/cloudTest/report' })"
+            >
+              <a-icon type="home" />
+              <p>{{ $translateTitle('cloudTest.report template') }}</p>
             </a>
           </a-dropdown>
           <a-dropdown
@@ -80,13 +96,26 @@
           <!--            "-->
           <!--            @click="handFullscreen"-->
           <!--          />-->
-          <vab-help
-            src="https://tech.iotn2n.com/w/docs/details?id=6"
-            title="组态文档"
-            trigger="click"
-          />
+          <!--          <el-button-->
+          <!--            style="margin-left: 16px"-->
+          <!--            type="primary"-->
+          <!--            @click.native="topoJson"-->
+          <!--          >-->
+          <!--            组态数据-->
+          <!--          </el-button>-->
         </vab-query-form-right-panel>
       </vab-query-form>
+      <el-drawer append-to-body :visible.sync="drawerTopo" :with-header="false">
+        <vab-monaco-plus
+          v-if="drawerTopo"
+          ref="monacoCodeTopo"
+          :codes="codes"
+          :lang="'json'"
+          :read-only="false"
+          style="margin-top: 26px"
+          :theme="'vs-dark'"
+        />
+      </el-drawer>
     </div>
   </div>
 </template>
@@ -122,6 +151,8 @@
     },
     data() {
       return {
+        codes: '',
+        drawerTopo: false,
         konva_key: moment(new Date()).valueOf(),
         infoVisible: false,
         topic: '',
@@ -155,6 +186,7 @@
     },
     mounted() {
       this.$nextTick(() => {
+        this.codes = canvas.stage.toJSON() ?? ''
         document.onkeydown = (e) => {
           if (e.keyCode == 46) {
             //这是delete健，当然也可以根据自己的需求更改
@@ -180,15 +212,29 @@
         setGraphColor: 'konva/setGraphColor',
         setDrawParams: 'konva/setDrawParams',
       }),
+      topoJson() {
+        // 自动格式化代码
+        this.$nextTick(() => {
+          this.codes = canvas.stage.toJSON()
+          this.drawerTopo = true
+          console.log('monacoCodeTopo 加载日志')
+          console.log(this.$refs.monacoCodeTopo)
+          if (this.$refs.monacoCodeTopo.monacoEditor)
+            this.$refs.monacoCodeTopo.monacoEditor
+              .getAction('editor.action.formatDocument')
+              .run()
+        })
+      },
       ToggleView() {
         this.$baseEventBus.$emit('ToggleView')
       },
       saveTopo() {
         this.$dgiotBus.$emit('busUpdata')
+        this.$dgiotBus.$emit('_busUpdata')
       },
-      eyeTopo() {
-        this.infoVisible = !this.infoVisible
+      preview() {
         this.$nextTick(() => {
+          this.infoVisible = !this.infoVisible
           this.initKonva({
             data: JSON.parse(canvas.stage.toJSON()),
             id: 'konva_preview',
@@ -203,12 +249,12 @@
       setColor(v) {
         this.setGraphColor(v)
       },
-      // flagFn
-      // 打开websocket
-      drawerFlag() {
-        this.topic = `thing/${this.productid}/post`
-        this.drawer = true
-      },
+      // // flagFn
+      // // 打开websocket
+      // drawerFlag() {
+      //   this.topic = `thing/${this.productid}/post`
+      //   this.drawer = true
+      // },
       // mqtt订阅
       subscribe(subdialogid) {
         var info = {

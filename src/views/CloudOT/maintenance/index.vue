@@ -231,7 +231,7 @@
 </template>
 
 <script>
-  import { query_object } from '@/api/shuwa_parse'
+  import { query_object } from '@/api/Parse'
   import { exlout } from '@/api/File'
   import { queryDevice } from '@/api/Device'
   import ChangeInfo from '@/views/CloudOT/maintenance/ChangeInfo'
@@ -306,6 +306,7 @@
         objectId: 'user/objectId',
         role: 'acl/role',
         username: 'user/username',
+        currentDepartment: 'user/currentDepartment',
       }),
       aclObj() {
         let aclObj = {}

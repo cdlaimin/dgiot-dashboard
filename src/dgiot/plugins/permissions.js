@@ -13,8 +13,8 @@ import router from '@/router'
 import store from '@/store'
 import VabProgress from 'nprogress'
 // import 'nprogress/nprogress.css'
-import getPageTitle from '@/utils/pageTitle'
-import { toLoginRoute } from '@/utils/routes'
+import getPageTitle from '@/utils/vue/pageTitle'
+import { toLoginRoute } from '@/utils/router/routes'
 import {
   authentication,
   loginInterception,
@@ -33,9 +33,11 @@ router.beforeEach(async (to, from, next) => {
     router: to.meta.component,
     timestamp: moment(new Date()).valueOf(),
   })
-  // if (to.name == '404') {
-  //   return false
-  // }
+  if (to.name == '404') {
+    console.log('dgiot router log---')
+    console.log(to)
+    return false
+  }
   const { showProgressBar } = store.getters['settings/theme']
   if (showProgressBar) VabProgress.start()
   let hasToken = store.getters['user/token']
@@ -108,6 +110,6 @@ router.afterEach((to) => {
     dgiotlog
       .getDgiotlog('src/dgiot/plugins/permissions.js')
       .info('router ->', routecInfo)
-
+  window.router = dgiot.router = routecInfo
   if (VabProgress.status) VabProgress.done()
 })

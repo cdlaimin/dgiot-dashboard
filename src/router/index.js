@@ -16,8 +16,33 @@ import { publicPath, routerMode } from '@/config'
 
 export const constantRoutes = [
   {
+    path: '/quick',
+    component: () => import('@/views/MultiTenant/user/quick'),
+    hidden: true,
+  },
+  {
+    path: '/admin',
+    component: () => import('@/views/MultiTenant/user/admin'),
+    hidden: true,
+  },
+  {
+    path: '/dev',
+    component: () => import('@/views/MultiTenant/user/dev'),
+    hidden: true,
+  },
+  {
+    path: '/datav',
+    component: () => import('@/components/datav/index'),
+    hidden: true,
+  },
+  {
     path: '/login',
     component: () => import('@/views/MultiTenant/user/login'),
+    hidden: true,
+  },
+  {
+    path: '/jwtLogin',
+    component: () => import('@/views/MultiTenant/user/jwtlogin'),
     hidden: true,
   },
   {

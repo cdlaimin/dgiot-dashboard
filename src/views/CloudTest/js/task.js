@@ -1,21 +1,55 @@
 import lowcodeDesign from '@/views/CloudFunction/lowcode/components/index'
 import { queryDevice, delDevice, putDevice } from '@/api/Device'
+import { postHead } from '@/api/Opc'
 import { postreport } from '@/api/Report'
 import VabDraggable from 'vuedraggable'
 import { mapGetters } from 'vuex'
 import { queryProduct } from '@/api/Product'
 import { queryView } from '@/api/View'
-import { generatereport } from '@/api/Evidence'
-// const docx = require('docx-preview')
-import mammoth from 'mammoth'
+import { getCardDevice } from '@/api/Device/index.js'
+import {
+  generatereport,
+  postDrawxnqx,
+  queryEvidence,
+  postEvidence,
+  putEvidence,
+} from '@/api/Evidence'
+import { getDevice } from '../../../api/Device'
+import moment from 'moment'
 export default {
   name: 'TaskIndex',
+  filters: {
+    filterVal(val) {
+      if (val || val == 0) {
+        return val
+      } else {
+        return '--'
+      }
+    },
+  },
   components: {
     VabDraggable,
     lowcodeDesign,
   },
   data() {
     return {
+      machinelist: {},
+      historyEvidenceid: '',
+      nowTime: window.datetime,
+      historyEvidence: [],
+      historyInfo: {},
+      thirdtbKey: moment(new Date()).valueOf(),
+      original: {},
+      collectionInfo: {},
+      drawxnqxPath: '',
+      thingdata: [],
+      realtimedata: [],
+      thingcolumns: [],
+      historycolumns: [],
+      visible: false,
+      router: '',
+      topicKey: '',
+      activeName1: 'first',
       activeName: this?.$route?.query?.tabs
         ? this.$route.query.tabs == 'examination'
           ? 'examination'
@@ -109,7 +143,7 @@ export default {
           sortable: true,
         },
         // {
-        //   label: 'Creation time',
+        //   label: 'Creation Time',
         //   width: 'auto',
         //   prop: 'createdAt',
         //   sortable: true,
@@ -169,7 +203,114 @@ export default {
   created() {
     this.fetchData()
   },
+  mounted() {
+    this.historyEvidence = []
+    this.historyInfo = {}
+    this.router = this.$dgiotBus.router(this.$route.fullPath)
+    this.$dgiotBus.$off('lowcodeClose')
+    this.$dgiotBus.$on('lowcodeClose', (_) => {
+      this.fetchData()
+    })
+    this.timer = setInterval(() => {
+      this.datetime()
+    }, 1000)
+  },
   methods: {
+    tabHandleClick(tab) {
+      switch (tab.name) {
+        case 'first':
+          break
+        case 'second':
+          break
+      }
+    },
+    getCardDevice(deviceid) {
+      var vm = this
+      getCardDevice(deviceid)
+        .then((response) => {
+          vm.machinelist = {}
+          if (response?.data) {
+            vm.renderCard(response.data)
+          }
+        })
+        .catch((error) => {
+          dgiotlog.log('update error 清除timer', error)
+        })
+    },
+    async subRealtimedata(params) {
+      let subtopic = `thing/${params.parentId.objectId}/realtimedata/post` // 设备实时数据topic
+      let router = this.$dgiotBus.router(location.href + this.$route.fullPath)
+      let topicKey = this.$dgiotBus.topicKey(router, subtopic) // dgiot-mqtt topicKey 唯一标识
+      try {
+        // 订阅mqtt
+        this.$dgiotBus.$emit('MqttSubscribe', {
+          router: router,
+          topic: subtopic,
+          qos: 0,
+          ttl: 1000 * 60 * 60 * 3,
+        })
+        // mqtt 消息回调
+        console.groupCollapsed(
+          `%c mqtt 订阅日志`,
+          'color:#009a61; font-size: 28px; font-weight: 300'
+        )
+        console.log('topic:', subtopic)
+        console.log('router:', router)
+        console.groupEnd()
+
+        this.$dgiotBus.$off(topicKey) // dgiotBus 关闭事件
+        this.$dgiotBus.$on(topicKey, (mqttMsg) => {
+          // mqtt 消息回调
+          console.groupCollapsed(
+            `%c mqttMsg消息回调`,
+            'color:#009a61; font-size: 28px; font-weight: 300'
+          )
+          console.log(mqttMsg)
+          console.log(Base64.decode(mqttMsg.payload))
+          console.log(JSON.parse(Base64.decode(mqttMsg.payload)).data)
+          console.log('Base64.decode(payload):', Base64.decode(mqttMsg.payload))
+          console.groupEnd()
+          const { data = [] } = JSON.parse(Base64.decode(mqttMsg.payload))
+          if (data) {
+            this.renderCard(data)
+          } else {
+            this.getCardDevice()
+          }
+        })
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
+    renderCard(resData) {
+      var vm = this
+      let array = []
+      resData.forEach((item) => {
+        if (item.devicetype) {
+          array.push(item.devicetype)
+        }
+      })
+      array = _.uniqBy(array)
+      let machine = {}
+      array.forEach((item) => {
+        let arr = []
+        resData.forEach((item1) => {
+          if (item == item1.devicetype) {
+            arr.push(item1)
+          }
+        })
+        machine[item] = arr
+      })
+      vm.machinelist = machine
+      vm.thirdtbKey = moment(new Date()).valueOf()
+    },
+    datetime() {
+      this.nowTime = moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
+    },
     async paginationQuery(queryPayload) {
       this.queryPayload = queryPayload
     },
@@ -178,7 +319,7 @@ export default {
     },
     testbedChange(val) {
       this.$set(this.ruleForm, 'testbedid', val.objectId)
-      dgiotlog.log(
+      console.log(
         'src/views/CloudTest/js/task.js',
         'this.ruleForm',
         this.ruleForm,
@@ -199,11 +340,70 @@ export default {
     async getgroup() {
       const params = {
         where: {
-          'detail.devModel': 'DGIOT_GROUP',
+          'detail.category': '84abda3154',
         },
       }
       const { results } = await queryDevice(params)
       this.grouplist = results
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-21 11:13:03
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async deleteHistory(row, index) {
+      try {
+        await this.historyEvidence.splice(index, 1)
+        console.log(
+          'deleteHistory',
+          row,
+          index,
+          this.historyEvidence,
+          this.historyEvidence.length
+        )
+        await this.saveHistorical(
+          this.collectionInfo,
+          this.thingdata,
+          this.historyEvidence,
+          false
+        )
+        await this.saveThingdata()
+        // this.featHistoryEvidence(this.collectionInfo.objectId)
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-1
+     * 2-20 17:33:31
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async saveThingdata() {
+      try {
+        const Evidence = {
+          original: this.historyInfo.original,
+        }
+        const res = await putEvidence(this.historyInfo.objectId, Evidence)
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
     },
     submitForm(formName) {
       const aclKey1 = 'role' + ':' + this.currentDepartment.name
@@ -216,7 +416,7 @@ export default {
         if (valid) {
           const task = {
             profile: {
-              testbedid: this.ruleForm.testbedid,
+              testbedid: this.ruleForm.teestbedid,
               testbed: this.ruleForm.testbed.name,
               wordtemplatename: this.ruleForm.templatename.name,
               reportId: this.ruleForm.templatenameid,
@@ -235,7 +435,7 @@ export default {
           this.fetchData()
           loading.close()
         } else {
-          dgiotlog.log('error submit!!')
+          console.log('error submit!!')
           return false
         }
         this.ruleForm = {
@@ -247,19 +447,81 @@ export default {
         }
       })
     },
-    forensics(row) {
-      console.warn(row)
-      this.$router.push({
-        path: '/cloudTest/evidence',
-        query: {
-          taskid: row.objectId,
-          suite: 0,
-          state: 'preview',
-          step: 1,
-          back: row.profile.step,
-          message: row.profile.message,
-        },
-      })
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-21 09:34:37
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description: 查询历史存证
+     */
+    async featHistoryEvidence(taskid) {
+      this.historyEvidence = []
+      try {
+        const params = {
+          order: '-createdAt',
+          skip: 0,
+          where: {
+            'original.taskid': taskid,
+            'original.type': 'avgs',
+          },
+        }
+        const loading = this.$baseColorfullLoading()
+        const { results = [] } = await queryEvidence(params)
+        if (results?.length) {
+          this.historyEvidence = results[0].original.avgs ?? []
+          this.collectionInfo.profile.historicaldata = this.historyEvidence
+          this.historyInfo = results[0]
+          this.drawxnqxPath = results[0].original.path ?? ''
+        }
+        this.historycolumns = _.filter(this.thingcolumns, function (item) {
+          return item.prop !== 'timestamp'
+        })
+        // await this.drawxnqx(this.collectionInfo.objectId, this.historyEvidence)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request successfully'),
+          'success',
+          'vab-hey-message-success'
+        )
+        loading.close()
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
+    /**
+     * @Author: h7ml
+     * @Date: 2021-12-15 18:58:04
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async forensics(row) {
+      try {
+        await this.$router.push({
+          path: '/cloudTest/evidence',
+          query: {
+            taskid: row.objectId,
+            suite: 0,
+            state: 'preview',
+            step: 1,
+            back: row.profile.step,
+            message: row.profile.message,
+          },
+        })
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
     },
     /**
      * @Author: h7ml
@@ -288,7 +550,7 @@ export default {
             this.fetchData()
             loading.close()
           } catch (error) {
-            dgiotlog.log(error)
+            console.log(error)
             this.$baseMessage(
               this.$translateTitle('alert.Data request error') + `${error}`,
               'error',
@@ -307,14 +569,17 @@ export default {
      * @Description:
      */
     taskStart(row) {
-      this.$baseConfirm(
-        this.$translateTitle(
+      let _this = this
+      _this.$baseConfirm(
+        _this.$translateTitle(
           'Maintenance.Are you sure you want to start the current mission'
         ),
         null,
         async () => {
           try {
-            const loading = this.$baseColorfullLoading()
+            const loading = _this.$baseColorfullLoading()
+            await _this.startOpc(row)
+            await generatereport(row.objectId)
             const params = {
               profile: _.merge(row.profile, {
                 step: 1,
@@ -322,11 +587,11 @@ export default {
               }),
             }
             const res = await putDevice(row.objectId, params)
-            this.fetchData()
+            _this.fetchData()
             loading.close()
           } catch (error) {
-            dgiotlog.log(error)
-            this.$baseMessage(
+            console.log(error)
+            _this.$baseMessage(
               this.$translateTitle('alert.Data request error') + `${error}`,
               'error',
               'vab-hey-message-error'
@@ -351,7 +616,7 @@ export default {
         ele.click()
         // window.location.href = this.$FileServe + url
       } catch (error) {
-        dgiotlog.log(error)
+        console.log(error)
         this.$baseMessage(
           this.$translateTitle('alert.Data request error') + `${error}`,
           'error',
@@ -379,7 +644,7 @@ export default {
           },
         })
       } catch (error) {
-        dgiotlog.log(error)
+        console.log(error)
         this.$baseMessage(
           this.$translateTitle('alert.Data request error') + `${error}`,
           'error',
@@ -430,7 +695,7 @@ export default {
         }
         loading.close()
       } catch (error) {
-        dgiotlog.log(error)
+        console.log(error)
         this.$baseMessage(
           this.$translateTitle('alert.Data request error') + `${error}`,
           'error',
@@ -446,7 +711,7 @@ export default {
         where: { type: 'amis', key: row.objectId },
       }
       const { results } = await queryView(params)
-      dgiotlog.log(results)
+      console.log(results)
       this.lowcodeId = results[0].objectId
       this.$dgiotBus.$emit('lowcodePreview', results[0])
     },
@@ -470,7 +735,7 @@ export default {
         loading.close()
         this.fetchData()
       } catch (error) {
-        dgiotlog.log(error)
+        console.log(error)
         this.$baseMessage(
           this.$translateTitle('user.error deleted') + `${error}`,
           'error',
@@ -496,13 +761,15 @@ export default {
       this.queryPayload.where = {
         'profile.identifier': 'inspectionReportTemp',
         name: this.queryForm.name.length
-          ? { $in: this.queryForm.name }
+          ? { $regex: this.queryForm.name }
           : { $ne: null },
-        'profile.step': { $lte: 1 },
+        // 'profile.step': { $lte: 3 },
+        'profile.step': { $regex: '' + '^(-1|[0-9]\\d*)$' },
       }
       this.listLoading = true
       const { count = 0, results = [] } = await queryDevice(this.queryPayload)
-      this.$refs['forensics'].ination.total = count
+      if (this.$refs['forensics']) this.$refs['forensics'].ination.total = count
+      this.list.forensics = results
       results.forEach((item) => {
         if (!item.profile.step) item.profile.step = 0
         item.endtime = item.profile.endtime
@@ -512,13 +779,352 @@ export default {
           ? moment(Number(item.profile.starttime)).format('YYYY-MM-DD HH:mm:ss')
           : ''
         item.createdAt = moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')
-        if (item.profile.step <= 1) {
-          this.list.forensics.push(item)
-        } else {
-          this.list.examination.push(item)
-        }
       })
       this.listLoading = false
     },
+    /**
+     * @Author:
+     * @Date: 2021-12-22 17:26:30
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async visibleInfo(params) {
+      let _this = this
+      _this.collectionInfo = params
+      _this.getCardDevice(params.parentId.objectId)
+      _this.subRealtimedata(params)
+      try {
+        const thingcolumns = {}
+        const items = []
+        _this.thingdata = []
+        _this.realtimedata = []
+        _this.thingcolumns = []
+        if (params.basedata) {
+          /**
+           * @description 判断下发组态topic的item
+           * @description 必须以 标识符 dgiot_testing_equipment_ 开头
+           */
+          for (let key in params.basedata) {
+            if (key.indexOf('dgiot_testing_equipment_') == 0) {
+              const splitColumns = key.split('dgiot_testing_equipment_')[1]
+              thingcolumns[`${splitColumns}`] = splitColumns
+              items.push(params.basedata[key])
+            }
+          }
+        }
+        // mqtt 消息回调
+        console.groupCollapsed(
+          '%c send mqttMsg items',
+          'color:#009a61; font-size: 28px; font-weight: 300'
+        )
+        console.log(items)
+        console.groupEnd()
+        const { table = [] } = await postHead({
+          items: items,
+          productid: params.parentId.product.objectId,
+        })
+        _this.thingcolumns = table
+        console.log(' _this.thingcolumns', _this.thingcolumns)
+        _this.featHistoryEvidence(this.collectionInfo.objectId)
+        _this.visible = true
+      } catch (error) {
+        console.log(error)
+        _this.$baseMessage(
+          _this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-23 16:53:51
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async startOpc(row) {
+      try {
+        var items = []
+        const { basedata = [] } = await getDevice(row.objectId)
+        if (!_.isEmpty(basedata)) {
+          for (let key in basedata) {
+            if (key.indexOf('dgiot_testing_equipment_') == 0)
+              items.push(basedata[key])
+          }
+        }
+        // mqtt 消息回调
+        console.groupCollapsed(
+          '%c send mqttMsg items',
+          'color:#009a61; font-size: 28px; font-weight: 300'
+        )
+        console.log(items)
+        console.groupEnd()
+        const pubTopic = `/${row.parentId.product.objectId}/${row.parentId.devaddr}/device/event` // 读取opc属性topic
+        const message = {
+          cmd: 'opc_items',
+          groupid: row.parentId.objectId, //'设备ID',
+          opcserver:
+            basedata.dgiot_testing_opcserver ?? 'Kepware.KEPServerEX.V6',
+          items: items, //要读取到属性列表
+        } // 下发的消息内容
+        // mqtt 消息回调
+        console.groupCollapsed(
+          '%c 下发消息',
+          'color:#009a61; font-size: 28px; font-weight: 300'
+        )
+        console.log(message)
+        console.log(pubTopic)
+        console.groupEnd()
+        await this.$dgiotBus.$emit(
+          `MqttPublish`,
+          pubTopic,
+          JSON.stringify(message),
+          0,
+          false
+        ) // 开始任务
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-16 14:46:53
+     * @LastEditors: dext7r
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async collection(params) {
+      let _this = this
+      _this.collectionInfo = params
+      _this.featHistoryEvidence(this.collectionInfo.objectId)
+      try {
+        const thingcolumns = {}
+        const items = []
+        _this.thingdata = []
+        // _this.thingcolumns = []
+        const { basedata = [] } = await getDevice(params.objectId)
+        if (!_.isEmpty(basedata)) {
+          /**
+           * @description 判断下发组态topic的item
+           * @description 必须以 标识符 dgiot_testing_equipment_ 开头
+           */
+          for (let key in basedata) {
+            if (key.indexOf('dgiot_testing_equipment_') == 0)
+              items.push(basedata[key])
+          }
+        }
+        // mqtt 消息回调
+        console.groupCollapsed(
+          '%c send mqttMsg items',
+          'color:#009a61; font-size: 28px; font-weight: 300'
+        )
+        console.log(items)
+        console.groupEnd()
+        _this.subtopic = `topo/${params.parentId.product.objectId}/${params.parentId.devaddr}/post` // 组态上报topic
+        const pubTopic = `/${params.parentId.product.objectId}/${params.parentId.devaddr}/device/event` // 读取opc属性topic
+        const message = {
+          cmd: 'opc_report', // 采集条数
+          duration: Number(basedata.dgiot_sampling_parametric_frequency) ?? 5, //条数
+          groupid: params.parentId.objectId,
+        }
+        console.groupCollapsed(
+          `%c 发送采集消息`,
+          'color:#009a61; font-size: 28px; font-weight: 300'
+        )
+        console.log('message', message)
+        console.log('pubTopic', pubTopic)
+        console.groupEnd()
+        _this.$dgiotBus.$emit(
+          `MqttPublish`,
+          pubTopic,
+          JSON.stringify(message),
+          0,
+          false
+        ) // 开始采集
+        _this.topicKey = _this.$dgiotBus.topicKey(_this.router, _this.subtopic) // dgiot-mqtt topicKey 唯一标识
+        _this.$dgiotBus.$off(_this.topicKey) // dgiotBus 关闭事件
+        _this.$dgiotBus.$on(_this.topicKey, (mqttMsg) => {
+          // mqtt 消息回调
+          console.groupCollapsed(
+            `%c mqttMsg消息回调 \n${_this.topicKey}`,
+            'color:#009a61; font-size: 28px; font-weight: 300'
+          )
+          console.log(mqttMsg)
+          console.log('payload:', mqttMsg.payload)
+          console.groupEnd()
+          // _this.thingdata = []
+          // this.realtimedata = []
+          if (mqttMsg?.payload) {
+            const { thingdata = {}, timestamp } = JSON.parse(mqttMsg.payload)
+            thingdata.timestamp = moment(Number(timestamp)).format(
+              'YYYY-MM-DD HH:mm:ss'
+            )
+            if (!_.isEmpty(thingdata) && thingdata?.dgiotcollectflag == 0) {
+              console.log(thingdata)
+              _this.thingdata[0] = thingdata // 只显示一条
+              // _this.thingdata.unshift(thingdata) // 最新数据放在最前面
+            } else {
+              //实时数据
+              // _this.realtimedata.push(thingdata) // 只显示一条
+              _this.realtimedata.unshift(thingdata) // 最新数据放在最前面
+            }
+            // _this.getSummaries({ columns: [], data: _this.thingdata }) // 计算平均值
+          }
+        })
+        console.log('_this.thingdata', _this.thingdata)
+        _this.$dgiotBus.$emit('MqttSubscribe', {
+          router: _this.router,
+          topic: _this.subtopic,
+          qos: 0,
+          ttl: 1000 * 60 * 60 * 3,
+        })
+      } catch (error) {
+        console.log(error)
+        _this.$baseMessage(
+          _this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+      _this.subRealtimedata(params)
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-23 10:11:02
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async saveHistorical(collectionInfo, thingdata, historyEvidence, type) {
+      const _profile = {
+        profile: _.merge(collectionInfo.profile, {
+          historicaldatacolumns: _.filter(thingdata, function (item) {
+            return item.prop !== 'timestamp'
+          }),
+          historicaldata: historyEvidence,
+          drawxnqxPath: this.drawxnqxPath,
+        }),
+      }
+      console.log(collectionInfo, _profile)
+      if (type) this.visible = false
+      try {
+        const loading = this.$baseColorfullLoading()
+        const results = await putDevice(collectionInfo.objectId, _profile)
+        console.log(results)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request successfully'),
+          'success',
+          'vab-hey-message-success'
+        )
+        loading.close()
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-20 10:51:49
+     * @LastEditors: dext7r
+     * @param
+     * @return {Promise<void>}
+     * @Description: 计算平均值
+     */
+    async drawxnqx(taskid, thingdata) {
+      this.drawxnqxPath = ''
+      try {
+        const data = thingdata // 要處理下
+        const params = {
+          data: data,
+          taskid: taskid,
+        }
+        const {
+          code,
+          error = '',
+          original = {},
+          evidenceid = '',
+        } = await postDrawxnqx(params)
+        if (Number(code) == 200) {
+          this.historyEvidenceid = evidenceid ?? ''
+          this.historyEvidence = original.avgs ?? []
+          this.drawxnqxPath = `${original.path}?t=${moment(new Date()).format(
+            'x'
+          )}`
+          this.original = original ?? {}
+          // https://www.lodashjs.com/docs/lodash.filter
+          this.historycolumns = _.filter(this.thingcolumns, function (item) {
+            return item.prop !== 'timestamp'
+          })
+        } else {
+          this.$baseMessage(
+            this.$translateTitle('alert.Data request error') + `${error}`,
+            'error',
+            'vab-hey-message-error'
+          )
+        }
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-16 15:19:12
+     * @LastEditors: dext7r
+     * @param
+     * @return {*[]}
+     * @Description:
+     */
+    getSummaries(params) {
+      console.log(params, 'params')
+      const { columns, data } = params
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '平均值'
+          return
+        }
+        const values = data.map((item) => Number(item[column.property]))
+        if (!values.every((value) => isNaN(value))) {
+          let totalCount = 0
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr)
+            if (!isNaN(value)) {
+              totalCount++
+              return prev + curr
+            } else {
+              return prev
+            }
+          }, 0)
+          sums[index] = sums[index] / totalCount
+        } else {
+          sums[index] = 0
+        }
+      })
+      console.log(sums)
+      return sums
+    },
+  },
+  beforeDestroy() {
+    clearInterval(this.timer) // 在Vue实例销毁前，清除我们的定时器
   },
 }

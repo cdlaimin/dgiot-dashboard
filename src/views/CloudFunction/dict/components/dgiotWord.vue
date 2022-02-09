@@ -87,7 +87,7 @@
               <vab-monaco-plus
                 ref="monacoCode"
                 :codes="dataform.data"
-                :language="'json'"
+                :lang="'json'"
                 :read-only="false"
                 :theme="'vs-dark'"
               />
@@ -229,7 +229,7 @@
                     <br />
                     用 ‘,’ 分隔，
                     <br />
-                    例：flow,power,head
+                    例：flow,power,head,ratedspeed,pressure_in,pressure_out,conversion_flow,conversion_head,conversion_power,effect
                   </div>
                   <i class="el-icon-question" />
                 </el-tooltip>

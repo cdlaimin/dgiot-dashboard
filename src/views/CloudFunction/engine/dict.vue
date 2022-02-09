@@ -291,28 +291,39 @@
 
                 <el-table
                   :data="dictTempForm.params"
-                  :height="height"
                   style="width: 100%; text-align: center"
                 >
                   <!-- <el-table-column prop="name" label="名称" /> -->
                   <el-table-column
                     :label="$translateTitle('equipment.name')"
                     prop="name"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   />
                   <!-- <el-table-column prop="type" label="类型" /> -->
                   <el-table-column
                     :label="$translateTitle('rule.Type')"
                     prop="type"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   />
                   <!-- <el-table-column prop="order" label="序号" /> -->
                   <el-table-column
                     :label="$translateTitle('equipment.serialnumber')"
                     prop="order"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   />
                   <!-- <el-table-column prop="default" label="默认值"> -->
                   <el-table-column
                     :label="$translateTitle('equipment.defaultvalue')"
                     prop="default"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   >
                     <template #default="{ row }">
                       <span v-if="row.default == true && row.type == 'Boolean'">
@@ -337,6 +348,9 @@
                   <el-table-column
                     :label="$translateTitle('product.isitrequired')"
                     prop="required"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   >
                     <template #default="{ row }">
                       <span v-if="row.required">
@@ -353,6 +367,9 @@
                   <el-table-column
                     :label="$translateTitle('product.chinesetitle')"
                     prop="description"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   >
                     <template #default="{ row }">
                       {{ row.title.zh }}
@@ -362,6 +379,9 @@
                   <el-table-column
                     :label="$translateTitle('product.englishtitle')"
                     prop="description"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   >
                     <template #default="{ row }">
                       {{ row.title.en }}
@@ -371,6 +391,9 @@
                   <el-table-column
                     :label="$translateTitle('product.chinesedescription')"
                     prop="description"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   >
                     <template #default="{ row }">
                       {{ row.description.zh }}
@@ -380,6 +403,9 @@
                   <el-table-column
                     :label="$translateTitle('product.englishdescription')"
                     prop="description"
+                    show-overflow-tooltip
+                    sortable
+                    width="auto"
                   >
                     <template #default="{ row }">
                       {{ row.description.en }}
@@ -389,8 +415,10 @@
                   <!-- <el-table-column label="操作" width="160" align="center"> -->
                   <el-table-column
                     align="center"
+                    fixed="right"
                     :label="$translateTitle('task.Operation')"
-                    width="160"
+                    min-width="220"
+                    width="auto"
                   >
                     <template #default="{ row, $index }">
                       <el-button
@@ -664,18 +692,18 @@
           :cell-style="{ 'text-align': 'center' }"
           :data="dictRecord"
           :header-cell-style="{ 'text-align': 'center' }"
-          :height="height"
           :row-class-name="tableRowClassName"
           style="width: 100%"
         >
           <el-table-column
             :label="$translateTitle('developer.indexes')"
             type="index"
-            width="50"
+            width="auto"
           />
           <el-table-column
             :label="$translateTitle('developer.dictionarytemplatenumber')"
-            width="200"
+            show-overflow-tooltip
+            width="auto"
           >
             <template #default="{ row }">
               {{ row.objectId }}
@@ -683,7 +711,8 @@
           </el-table-column>
           <el-table-column
             :label="$translateTitle('developer.dictionarytemplatename')"
-            width="200"
+            show-overflow-tooltip
+            width="auto"
           >
             <template #default="{ row }">
               {{ row.data.name }}
@@ -691,7 +720,7 @@
           </el-table-column>
           <el-table-column
             :label="$translateTitle('developer.dictionarytemplatetype')"
-            width="200"
+            width="auto"
           >
             <template #default="{ row }">
               {{ row.data.cType }}
@@ -699,7 +728,7 @@
           </el-table-column>
           <el-table-column
             :label="$translateTitle('developer.dictionarytemplatestatus')"
-            width="200"
+            width="auto"
           >
             <template #default="{ row }">
               <el-tag v-if="row.data.enable == '1'" type="success">
@@ -720,8 +749,10 @@
           </el-table-column>
           <!-- <el-table-column label="操作" width="500"> -->
           <el-table-column
+            fixed="right"
             :label="$translateTitle('task.Operation')"
-            width="500"
+            min-width="200"
+            width="auto"
           >
             <template #default="{ row }">
               <el-button
@@ -1040,7 +1071,7 @@
   </div>
 </template>
 <script>
-  import { getDict, postDict, putDict, queryDict } from '@/api/Direct/index.js'
+  import { getDict, postDict, putDict, queryDict } from '@/api/Dict'
   import { mapGetters } from 'vuex'
   import { resourceTypes } from '@/api/Rules'
 

@@ -38,32 +38,32 @@
             class="konva-container-main-baseCol"
           >
             <el-main class="konva-container-baseCol-baseContainer">
-              <Topo-base
+              <topo-base
                 ref="topobase"
                 style="position: absolute; width: 100%"
               />
-              <el-button
-                v-show="Boolean($route.query.guide)"
-                size="mini"
-                type="primary"
-                :disabled="$route.query.page < 0"
-                icon="el-icon-arrow-left"
-                style="position: relative; left: 0"
-                @click.native="nextPage('left')"
-              >
-                {{ $translateTitle('button.previous') }}
-              </el-button>
-              <el-button
-                :disabled="$route.query.page > $route.query.list.length"
-                v-show="Boolean($route.query.guide)"
-                type="primary"
-                size="mini"
-                icon="el-icon-arrow-right"
-                @click.native="nextPage('right')"
-                style="position: fixed; right: 30px"
-              >
-                {{ $translateTitle('button.next') }}
-              </el-button>
+              <div v-if="Boolean($route.query.guide)">
+                <el-button
+                  size="mini"
+                  type="primary"
+                  :disabled="$route.query.page < 0"
+                  icon="el-icon-arrow-left"
+                  style="position: relative; left: 0"
+                  @click.native="nextPage('left')"
+                >
+                  {{ $translateTitle('button.previous') }}
+                </el-button>
+                <el-button
+                  :disabled="$route.query.page > $route.query.list.length"
+                  type="primary"
+                  size="mini"
+                  icon="el-icon-arrow-right"
+                  @click.native="nextPage('right')"
+                  style="position: fixed; right: 30px"
+                >
+                  {{ $translateTitle('button.next') }}
+                </el-button>
+              </div>
               <div
                 id="konva"
                 ref="konva"
@@ -80,22 +80,23 @@
 <script>
   import steps from './js/guide'
   import 'element-ui/lib/theme-chalk/display.css'
-  import { requireModule } from '@/utils/file'
+  import requiremodule from '@/utils/file/requiremodule'
   import { mapGetters, mapMutations } from 'vuex'
   import { _getTopo } from '@/api/Topo'
-  import { queryProduct } from '@/api/Product'
-  import canvas from '@/utils/konva/core/canvas'
-  import { handleActivePath } from '@/utils/routes'
-
+  import { putProduct, queryProduct } from '@/api/Product'
+  import { putView, getView } from '@/api/View'
+  import { isBase64 } from '@/utils'
   export default {
     components: {
-      ...requireModule(require.context('./components', true, /\.vue$/)),
+      ...requiremodule(require.context('./components', true, /\.vue$/)),
     },
     data() {
       return {
+        subtopic: '',
+        router: '',
+        viewInfo: {},
         driver: null,
         Stage: {},
-        router: '',
         isFull: false,
         topicKey: '',
         isFullscreen: false,
@@ -149,6 +150,12 @@
       },
     },
     mounted() {
+      this.$dgiotBus.$off('_busUpdata')
+      this.$dgiotBus.$on('_busUpdata', async () => {
+        if (this.viewInfo.objectId) {
+          await this._updataTopo(this.viewInfo.objectId)
+        }
+      })
       this.driver = new this.$Driver({
         className: 'vue-admin-beautiful-wrapper', // className to wrap driver.js popover
         animate: true, // Animate while changing highlighted element
@@ -182,7 +189,8 @@
       this.setTreeFlag(false)
     },
     destroyed() {
-      localStorage.setItem('konvaStale', JSON.stringify(canvas.stageJson))
+      if (!_.isEmpty(localStorage.getItem('konvaStale')))
+        localStorage.setItem('konvaStale', JSON.stringify(canvas.stageJson))
       this.$dgiotBus.$emit(
         'MqttUnbscribe',
         this.$dgiotBus.topicKey(this.router + this.topotopic),
@@ -222,6 +230,23 @@
         this.driver.start()
       },
       saveKonvaitem() {},
+      async _updataTopo(objectId) {
+        this.viewInfo.data.konva = { Stage: JSON.parse(canvas.stage.toJSON()) }
+        try {
+          const res = await putView(objectId, {
+            // data: _.merge(
+            //   {
+            //     konva: { Stage: JSON.parse(canvas.stage.toJSON()) },
+            //   },
+            //   this.viewInfo.data
+            // ),
+            data: this.viewInfo.data,
+          })
+          console.error('this.viewInfo.data', this.viewInfo.data)
+        } catch (e) {
+          console.log(e)
+        }
+      },
       async handleMqtt() {
         let _this = this
         if (_this.$route.query.type == 'device') {
@@ -246,7 +271,19 @@
           })
           _this.productconfig = results[0]
           // console.log(_this.productconfig)
+          console.groupCollapsed(
+            '%c productconfig',
+            'color:#009a61; font-size: 28px; font-weight: 300'
+          )
+          console.info('productconfig ->\n', _this.productconfig)
+          console.groupEnd()
           if (message == 'SUCCESS') {
+            console.groupCollapsed(
+              '%c _getTopo',
+              'color:#009a61; font-size: 28px; font-weight: 300'
+            )
+            console.info('data ->\n', data)
+            console.groupEnd()
             // console.log(this.$refs['edrawer'].$refs, 'edrawer')
             _this.$refs['operation']
               ? (_this.$refs['operation'].productconfig = results[0])
@@ -260,8 +297,14 @@
             //
             console.log(
               'topo info msg 请求数据有组态 就设置这个组态为请求回来的组态',
-              data.Stage
+              data.Stage,
+              data.viewid
             )
+            if (data.viewid) {
+              const res = await getView(data.viewid)
+              this.viewInfo = res
+            }
+            console.error(this.viewInfo)
             await _this.initKonva({
               data: data.Stage,
               id: 'kevCurrent',
@@ -295,13 +338,78 @@
           this.createdEvidence(
             _.merge(icon, {
               index: 7,
-              // 灰色表示取证阶段，黄色表示审核阶段，绿色标识审核通过，红色标识审核不过
-              fill: 'grey',
+              // blue表示取证阶段，黄色表示审核阶段，绿色标识审核通过，红色标识审核不过
+              fill: 'orange',
               productid: this.$route.query.productid,
             })
           )
           this.deleteTopo(window.deletePath)
         }, 1000)
+        _this.subtopic = `thing/${_this.productid}/post`
+        _this.topicKey = _this.$dgiotBus.topicKey(_this.router, _this.subtopic)
+        //
+        console.warn('订阅mqtt')
+        // 订阅webscroket
+        _this.$dgiotBus.$emit(`MqttSubscribe`, {
+          router: this.router,
+          topic: this.subtopic,
+          qos: 0,
+          ttl: 1000 * 60 * 60 * 3,
+        })
+        _this.handleMqttMsg()
+      },
+      // 处理mqtt信息
+      handleMqttMsg() {
+        console.error('this.topicKey', this.topicKey)
+        this.$dgiotBus.$off(this.topicKey)
+        this.$dgiotBus.$on(this.topicKey, (Msg) => {
+          console.log('收到消息', Msg)
+          if (Msg.payload) {
+            let decodeMqtt
+            let updataId = []
+            if (!isBase64(Msg.payload)) {
+              console.log('非base64数据类型')
+              decodeMqtt = Msg.payload
+            } else {
+              decodeMqtt = JSON.parse(Base64.decode(Msg.payload))
+              console.log('消息解密消息', decodeMqtt)
+            }
+
+            console.log(decodeMqtt.konva)
+            const Shape = decodeMqtt.konva
+            // apply transition to all nodes in the array
+            // Text.each(function (shape) {
+            const Text = canvas.stage.find('Text')
+            console.log(Text)
+            const tweens = []
+            for (var n = 0; n < tweens.length; n++) {
+              tweens[n].destroy()
+            }
+
+            Shape.forEach((i) => {
+              Text.forEach((shape) => {
+                if (i.id == shape.attrs.id) {
+                  console.log('更新节点', i)
+                  console.log(shape)
+                  shape.text(i.text)
+                  tweens.push(
+                    new Konva.Tween({
+                      node: shape,
+                      duration: 1,
+                      easing: Konva.Easings.ElasticEaseOut,
+                    }).play()
+                  )
+                } else {
+                  updataId.push(i.id)
+                }
+              })
+            })
+            if (updataId) {
+              console.log('以下组态id未更新', updataId)
+            }
+            console.log('konva数据更新成功')
+          }
+        })
       },
     },
   }
@@ -344,12 +452,12 @@
           overflow: auto;
 
           &-baseContainer {
-            overflow: auto;
             width: 100%;
             height: calc(
               100vh - #{$base-top-bar-height} * 2.7 - #{$base-padding} * 2 -
                 90px
             ) !important;
+            overflow: auto;
           }
         }
 

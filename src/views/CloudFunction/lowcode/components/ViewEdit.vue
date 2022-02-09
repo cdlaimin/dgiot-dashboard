@@ -49,7 +49,7 @@
           <vab-monaco-plus
             ref="monacoCode"
             :codes="codes"
-            :language="'json'"
+            :lang="'json'"
             :read-only="false"
             :theme="'vs-dark'"
           />
@@ -117,11 +117,14 @@
         this.dialogFormVisible = false
       },
       save() {
+        console.log(this.$refs.monacoCode.$refs.monacoEditor.editor.getValue())
         this.$refs['form'].validate(async (valid) => {
           if (valid) {
             const { title, type, key } = this.form
             const params = {
-              data: JSON.parse(this.$refs.monacoCode.monacoEditor.getValue()),
+              data: JSON.parse(
+                this.$refs.monacoCode.$refs.monacoEditor.editor.getValue()
+              ),
               class: this.form.class,
               title,
               type,

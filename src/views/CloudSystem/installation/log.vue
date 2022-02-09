@@ -2,92 +2,90 @@
   <div class="log log-container">
     <!--    <div class="left">-->
     <!--      <el-button-->
-    <!--        type="primary"-->
     <!--        icon="el-icon-circle-plus-outline"-->
     <!--        size="small"-->
+    <!--        type="primary"-->
     <!--        @click="install"-->
     <!--      >-->
     <!--        {{ $translateTitle('node.join') }}-->
     <!--      </el-button>-->
     <!--    </div>-->
 
-    <!--    <el-table-->
-    <!--      :height="height"-->
-    <!--      :data="tableData5.slice((start - 1) * length, start * length)"-->
-    <!--      style="width: 100%; margin-top: 20px"-->
-    <!--      border-->
-    <!--    >-->
-    <!--      <el-table-column :label="$translateTitle('node.nodename')" prop="name" />-->
-    <!--      <el-table-column-->
-    <!--        :label="'Erlang/' + $translateTitle('node.OTPversion')"-->
-    <!--        prop="otp_release"-->
-    <!--      />-->
-    <!--      <el-table-column>-->
-    <!--        <template slot="header">-->
-    <!--          <span>-->
-    <!--            {{ 'Erlang' + $translateTitle('node.process') }}-->
-    <!--          </span>-->
-    <!--          <p>used/avaliable</p>-->
-    <!--        </template>-->
-    <!--        <template #default="{ row }">-->
-    <!--          <span>-->
-    <!--            {{ row.process_used + '/' + row.process_available }}-->
-    <!--          </span>-->
-    <!--        </template>-->
-    <!--      </el-table-column>-->
-    <!--      <el-table-column label="CPU">-->
-    <!--        <template slot="header">-->
-    <!--          <span>CPU</span>-->
-    <!--          <p>1load/5load/15load</p>-->
-    <!--        </template>-->
-    <!--        <template #default="{ row }">-->
-    <!--          <span>-->
-    <!--            {{-->
-    <!--              row.load1 + '/' + row.load5 + '/' + row.load15-->
-    <!--            }}-->
-    <!--          </span>-->
-    <!--        </template>-->
-    <!--      </el-table-column>-->
-    <!--      <el-table-column :label="$translateTitle('node.memory')">-->
-    <!--        <template slot="header">-->
-    <!--          <span>-->
-    <!--            {{ $translateTitle('node.memory') }}-->
-    <!--          </span>-->
-    <!--          <p>used/total</p>-->
-    <!--        </template>-->
-    <!--        <template #default="{ row }">-->
-    <!--          <span>-->
-    <!--            {{ row.memory_used + '/' + row.memory_total }}-->
-    <!--          </span>-->
-    <!--        </template>-->
-    <!--      </el-table-column>-->
-    <!--      <el-table-column-->
-    <!--        :label="$translateTitle('node.Maximumnumberofhandles')"-->
-    <!--        prop="max_fds"-->
-    <!--      />-->
-    <!--      <el-table-column-->
-    <!--        :label="$translateTitle('node.state')"-->
-    <!--        prop="node_status"-->
-    <!--      />-->
-    <!--      <el-table-column :label="$translateTitle('node.operation')">-->
-    <!--        <template #default="{ row }">-->
-    <!--          <el-button type="danger" size="small" @click="removeNode(row.">-->
-    <!--            {{ $translateTitle('node.remove') }}-->
-    <!--          </el-button>-->
-    <!--        </template>-->
-    <!--      </el-table-column>-->
-    <!--    </el-table>-->
-    <!--    <div class="block" style="margin-top: 30px">-->
-    <!--      <el-pagination-->
-    <!--        :page-sizes="[10, 25, 50, 100]"-->
-    <!--        :page-size="length"-->
-    <!--        :total="total"-->
-    <!--        background-->
-    <!--        layout="total, sizes, prev, pager, next, jumper"-->
-    <!--        @size-change="handleSizeChange"-->
-    <!--        @current-change="handleCurrentChange"-->
-    <!--      />-->
-    <!--    </div>-->
+    <el-table
+      border
+      :data="tableData5.slice((start - 1) * length, start * length)"
+      :height="height"
+      style="width: 100%; margin-top: 20px"
+    >
+      <el-table-column :label="$translateTitle('node.nodename')" prop="name" />
+      <el-table-column
+        :label="'Erlang/' + $translateTitle('node.OTPversion')"
+        prop="otp_release"
+      />
+      <el-table-column>
+        <template slot="header">
+          <span>
+            {{ 'Erlang' + $translateTitle('node.process') }}
+          </span>
+          <p>used/avaliable</p>
+        </template>
+        <template #default="{ row }">
+          <span>
+            {{ row.process_used + '/' + row.process_available }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="CPU">
+        <template slot="header">
+          <span>CPU</span>
+          <p>1load/5load/15load</p>
+        </template>
+        <template #default="{ row }">
+          <span>
+            {{ row.load1 + '/' + row.load5 + '/' + row.load15 }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$translateTitle('node.memory')">
+        <template slot="header">
+          <span>
+            {{ $translateTitle('node.memory') }}
+          </span>
+          <p>used/total</p>
+        </template>
+        <template #default="{ row }">
+          <span>
+            {{ row.memory_used + '/' + row.memory_total }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        :label="$translateTitle('node.Maximumnumberofhandles')"
+        prop="max_fds"
+      />
+      <el-table-column
+        :label="$translateTitle('node.state')"
+        prop="node_status"
+      />
+      <!--      <el-table-column :label="$translateTitle('node.operation')">-->
+      <!--        <template #default="{ row }">-->
+      <!--          <el-button size="small" type="danger" @click="removeNode(row)">-->
+      <!--            {{ $translateTitle('node.remove') }}-->
+      <!--          </el-button>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
+    </el-table>
+    <div class="block" style="margin-top: 30px">
+      <el-pagination
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        :page-size="length"
+        :page-sizes="[10, 25, 50, 100]"
+        :total="total"
+        @current-change="handleCurrentChange"
+        @size-change="handleSizeChange"
+      />
+    </div>
     <el-dialog
       :append-to-body="true"
       :before-close="handleClose"
@@ -218,20 +216,18 @@
             this.$message(error.error)
           })
       },
-      removeNode(row) {
-        joinNode('leave', row.node)
-          .then((resultes) => {
-            if (resultes) {
-              this.$message({
-                type: 'success',
-                message: '移除成功',
-              })
-              this.Getinformation()
-            }
+      async removeNode(row) {
+        const error = await joinNode('leave', row.node)
+        console.error(error, 'error')
+        if (!error) {
+          this.$message({
+            type: 'success',
+            message: '移除成功',
           })
-          .catch((error) => {
-            this.$message(error.error)
-          })
+        } else {
+          this.$message(error)
+        }
+        this.Getinformation()
       },
       install() {
         this.dialogVisible = true

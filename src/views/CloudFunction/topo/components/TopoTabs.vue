@@ -10,7 +10,7 @@
       />
     </div>
     <Thing />
-    <div v-show="isDirver" style="text-align: center; margin: 0 auto">
+    <div v-show="isDirver" style="margin: 0 auto; text-align: center">
       <Evidence />
     </div>
     <a-collapse v-show="!isDirver" accordion>
@@ -46,101 +46,67 @@
         <!--        </el-button>-->
         <Evidence />
       </a-collapse-panel>
-      <a-collapse-panel key="4" :header="$translateTitle('topo.image')">
-        <div>
-          <el-collapse v-model="activeNames" accordion>
-            <el-collapse-item name="icon" title="iconfont">
-              <el-row :gutter="20">
-                <el-col
-                  v-for="(item, index) in iconfont.glyphs"
-                  v-show="index <= 11"
-                  :key="item.icon_id"
-                  :span="24"
-                >
-                  <i
-                    v-svg-drag="{ callback: coordinate }"
-                    @mousedown="moveSvg(item)"
-                  >
-                    <VabIconfont
-                      :name="item.font_class"
-                      :title="item.name"
-                      type="svg"
-                    />
-                  </i>
-                </el-col>
-              </el-row>
-            </el-collapse-item>
-            <el-collapse-item name="image" title="图标">
-              <el-row :gutter="20">
-                <el-col :span="24">
-                  <vab-query-form>
-                    <vab-query-form-top-panel>
-                      <el-form
-                        :inline="true"
-                        label-width="0"
-                        @submit.native.prevent
-                      >
-                        <el-form-item label="">
-                          <el-input v-model="queryForm.title" size="mini">
-                            <el-button
-                              slot="append"
-                              icon="el-icon-search"
-                              native-type="submit"
-                              type="primary"
-                              @click="queryData"
-                            />
-                            <el-button
-                              slot="prepend"
-                              icon="el-icon-upload"
-                              type="success"
-                              @click="uploadCkick('img')"
-                            />
-                          </el-input>
-                        </el-form-item>
-                      </el-form>
-                    </vab-query-form-top-panel>
-                  </vab-query-form>
-                </el-col>
-
-                <el-col
-                  v-for="(item, index) in queryIcon"
-                  v-show="index <= 11"
-                  :key="index"
-                  :span="24"
-                >
-                  <i>
-                    <el-image
-                      :src="imgHost + item"
-                      style="width: 100%; height: 40px; cursor: pointer"
-                      @click.native="handleIcon(imgHost + item)"
-                    />
-                  </i>
-                </el-col>
-                <el-col :span="24">
-                  <el-pagination
-                    :background="background"
-                    :current-page="queryForm.pageNo"
-                    :layout="layout"
-                    :page-size="queryForm.pageSize"
-                    :total="total"
-                    @current-change="handleCurrentChange"
-                    @size-change="handleSizeChange"
-                  />
-                </el-col>
-              </el-row>
-            </el-collapse-item>
-          </el-collapse>
-        </div>
-      </a-collapse-panel>
+      <!--      <a-collapse-panel key="4" :header="$translateTitle('topo.image')">-->
+      <!--        <div>-->
+      <!--          <el-collapse v-model="activeNames" accordion>-->
+      <!--            <el-collapse-item name="icon" title="iconfont">-->
+      <!--              <el-row :gutter="20">-->
+      <!--                <el-col-->
+      <!--                  v-for="(item, index) in iconfont.glyphs"-->
+      <!--                  v-show="index <= 11"-->
+      <!--                  :key="item.icon_id"-->
+      <!--                  :span="24"-->
+      <!--                >-->
+      <!--                  <i-->
+      <!--                    v-svg-drag="{ callback: coordinate }"-->
+      <!--                    @mousedown="moveSvg(item)"-->
+      <!--                  >-->
+      <!--                    <VabIconfont-->
+      <!--                      :name="item.font_class"-->
+      <!--                      :title="item.name"-->
+      <!--                      type="svg"-->
+      <!--                    />-->
+      <!--                  </i>-->
+      <!--                </el-col>-->
+      <!--              </el-row>-->
+      <!--            </el-collapse-item>-->
+      <!--            <el-collapse-item name="image" title="图标">-->
+      <!--              <el-row :gutter="20">-->
+      <!--                <el-col :span="24">-->
+      <!--                  <vab-query-form>-->
+      <!--                    <vab-query-form-top-panel>-->
+      <!--                      <el-form-->
+      <!--                        :inline="true"-->
+      <!--                        label-width="0"-->
+      <!--                        @submit.native.prevent-->
+      <!--                      >-->
+      <!--                        <el-form-item label="">-->
+      <!--                          <el-input v-model="queryForm.title" size="mini">-->
+      <!--                            <el-button-->
+      <!--                              slot="prepend"-->
+      <!--                              icon="el-icon-upload"-->
+      <!--                              type="success"-->
+      <!--                              @click="uploadCkick('img')"-->
+      <!--                            />-->
+      <!--                          </el-input>-->
+      <!--                        </el-form-item>-->
+      <!--                      </el-form>-->
+      <!--                    </vab-query-form-top-panel>-->
+      <!--                  </vab-query-form>-->
+      <!--                </el-col>-->
+      <!--              </el-row>-->
+      <!--            </el-collapse-item>-->
+      <!--          </el-collapse>-->
+      <!--        </div>-->
+      <!--      </a-collapse-panel>-->
     </a-collapse>
   </div>
 </template>
 
 <script>
   import createThing from '@/utils/konva/createThing'
-  import { getMaterial } from '@/api/Material'
   import { mapMutations } from 'vuex'
-  import { getSvgPath } from '@/utils/konva'
+  import getSvgPath from '@/utils/konva/getSvgPath'
   import Thing from '@/views/CloudFunction/topo/components/Thing'
   // import TopoThing from '@/views/topo/components/TopoThing'
   import Background from '@/views/CloudFunction/topo/components/Background'
@@ -208,7 +174,7 @@
     },
     computed: {},
     created() {
-      this.fetchData()
+      // this.fetchData()
       // this.$dgiotBus.$off(location.hash)
       // this.$dgiotBus.$on(location.hash, (args) => {
       //   console.log(args, 'args')
@@ -282,27 +248,6 @@
       // mouseup(item) {
       //   this.$emit('fatherMouseup', item)
       // },
-
-      async fetchData() {
-        const { data, totalCount } = await getMaterial(this.queryForm)
-        this.queryIcon = data
-        this.total = totalCount
-      },
-      handleChange(val) {
-        console.log(val)
-      },
-      handleSizeChange(val) {
-        this.queryForm.pageSize = val
-        this.fetchData()
-      },
-      handleCurrentChange(val) {
-        this.queryForm.pageNo = val
-        this.fetchData()
-      },
-      queryData() {
-        this.queryForm.pageNo = 1
-        this.fetchData()
-      },
       async fileInfo(res) {
         console.log(res)
         if (this.upImgType === 'img') {

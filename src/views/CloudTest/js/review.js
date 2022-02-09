@@ -1,4 +1,5 @@
 import lowcodeDesign from '@/views/CloudFunction/lowcode/components/index'
+import evidenceStatistics from '@/views/CloudTest/review/statistics'
 import { queryDevice, delDevice, putDevice } from '@/api/Device'
 import { postreport } from '@/api/Report'
 import VabDraggable from 'vuedraggable'
@@ -8,17 +9,27 @@ import { queryView } from '@/api/View'
 import { generatereport, queryEvidence } from '@/api/Evidence'
 // const docx = require('docx-preview')
 // import mammoth from 'mammoth'
+const VueAliplayerV2 = window['vue-aliplayer-v2'].default
 export default {
   name: 'ReviewIndex',
   components: {
     VabDraggable,
     lowcodeDesign,
+    evidenceStatistics,
+    'vue-aliplayer-v2': VueAliplayerV2,
   },
   data() {
     return {
+      statisticsVisible: false,
+      evidenceId: '',
+      aliplayer: {
+        autoplay: false,
+        // width: '100px',
+        height: '200px',
+      },
       types: {
-        video: ['video', 'personal_video'],
-        audio: ['audio', 'volume_up'],
+        video: ['video', 'videocam_black'],
+        audio: ['audio', 'volume_mute'],
         image: ['image', 'image'],
         file: ['file', 'archive'],
       },
@@ -117,7 +128,7 @@ export default {
           sortable: true,
         },
         // {
-        //   label: 'Creation time',
+        //   label: 'Creation Time',
         //   width: 'auto',
         //   prop: 'createdAt',
         //   sortable: true,
@@ -178,6 +189,30 @@ export default {
     this.fetchData()
   },
   methods: {
+    /**
+     * @Author: dext7r
+     * @Date: 2021-12-22 20:28:01
+     * @LastEditors:
+     * @param
+     * @return {Promise<void>}
+     * @Description:
+     */
+    async handleHistory(params) {
+      try {
+        this.evidenceId = params.objectId
+        this.statisticsVisible = true
+        this.$nextTick(() => {
+          this.$refs['statistics'].evidence(params.objectId)
+        })
+      } catch (error) {
+        console.log(error)
+        this.$baseMessage(
+          this.$translateTitle('alert.Data request error') + `${error}`,
+          'error',
+          'vab-hey-message-error'
+        )
+      }
+    },
     async paginationQuery(queryPayload) {
       this.queryPayload = queryPayload
     },
@@ -207,7 +242,7 @@ export default {
     async getgroup() {
       const params = {
         where: {
-          'detail.devModel': 'DGIOT_GROUP',
+          'detail.category': '84abda3154',
         },
       }
       const { results } = await queryDevice(params)
@@ -442,6 +477,7 @@ export default {
           skip: 0,
           where: {
             'original.taskid': objectId,
+            reportId: { $ne: objectId },
           },
         }
         const loading = this.$baseColorfullLoading()
@@ -495,7 +531,20 @@ export default {
             'success',
             'vab-hey-message-success'
           )
-          this.fetchData()
+          setTimeout(() => {
+            const params = {
+              profile: _.merge(row.profile, {
+                step: 4,
+                docx: path,
+              }),
+            }
+            const _res = putDevice(row.objectId, params)
+            const fileUrl = this.$FileServe + path
+            this.dialogVisible = true
+            this.officeapps =
+              'https://view.officeapps.live.com/op/view.aspx?src=' + fileUrl
+            this.fetchData()
+          }, 1200)
         } else {
           this.$baseMessage(`${msg}`, 'error', 'vab-hey-message-error')
         }
@@ -514,10 +563,12 @@ export default {
       localStorage.setItem('parse_objectid', row.objectId)
       const params = {
         limit: 1,
-        where: { type: 'amis', key: row.objectId },
+        where: { type: 'amis_view', key: row.objectId },
       }
-      const { results } = await queryView(params)
-      dgiotlog.log(results)
+      const { results = [] } = await queryView(params)
+      console.log(results)
+      if (results.length == 0)
+        this.$baseMessage('暂无配置', 'success', 'vab-hey-message-success')
       this.lowcodeId = results[0].objectId
       this.$dgiotBus.$emit('lowcodePreview', results[0])
     },
@@ -567,15 +618,19 @@ export default {
       this.queryPayload.where = {
         'profile.identifier': 'inspectionReportTemp',
         name: this.queryForm.name.length
-          ? { $in: this.queryForm.name }
+          ? { $regex: this.queryForm.name }
           : { $ne: null },
-        'profile.step': { $gt: 1 },
+        'profile.step': { $regex: '' + '^(-1|[2-9]\\d*)$' },
+        // 'profile.step': {
+        //   $regex: '.+',
+        // },
       }
+      // 匹配 -1 且在 1-9之间的  /^[-1|2-9]\d*$
+      // 测试方法 /^[-1|2-9]\d*$/.test(-1)
       this.listLoading = true
       const { count = 0, results = [] } = await queryDevice(this.queryPayload)
       this.$refs['examination'].ination.total = count
       results.forEach((item) => {
-        if (!item.profile.step) item.profile.step = 0
         item.endtime = item.profile.endtime
           ? moment(Number(item.profile.endtime)).format('YYYY-MM-DD HH:mm:ss')
           : ''
@@ -583,11 +638,7 @@ export default {
           ? moment(Number(item.profile.starttime)).format('YYYY-MM-DD HH:mm:ss')
           : ''
         item.createdAt = moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss')
-        if (item.profile.step <= 1) {
-          this.list.forensics.push(item)
-        } else {
-          this.list.examination.push(item)
-        }
+        this.list.examination.push(item)
       })
       this.listLoading = false
     },

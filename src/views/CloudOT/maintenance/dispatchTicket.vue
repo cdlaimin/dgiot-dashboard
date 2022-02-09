@@ -86,7 +86,7 @@
                 @change="prodChange"
               >
                 <el-option
-                  v-for="(item, index) in _Product"
+                  v-for="(item, index) in Product"
                   v-show="item.objectId != 0"
                   :key="index"
                   :label="item.name"
@@ -183,7 +183,7 @@
               :placeholder="$translateTitle('Maintenance.project')"
             >
               <el-option
-                v-for="(item, index) in _Product"
+                v-for="(item, index) in Product"
                 v-show="item.objectId != 0"
                 :key="index"
                 :label="item.name"
@@ -323,7 +323,6 @@
       v-loading="listLoading"
       border
       :data="list"
-      :height="height"
       stripe
       @selection-change="changeBox"
     >
@@ -465,13 +464,13 @@
   </div>
 </template>
 <script>
-  import { create_object, query_object, update_object } from '@/api/shuwa_parse'
+  import { create_object, query_object, update_object } from '@/api/Parse'
   import { batch } from '@/api/Batch'
   import { queryDevice } from '@/api/Device'
   import { mapGetters, mapMutations } from 'vuex'
   import { exlout, UploadImg } from '@/api/File'
   import ChangeStep from '@/views/CloudOT/maintenance/ChangeStep'
-
+  import { queryProduct } from '@/api/Product'
   export default {
     name: 'DispatchTicket',
     components: {
@@ -479,6 +478,7 @@
     },
     data() {
       return {
+        Product: {},
         created: 0,
         Assigned: 0,
         showdeviceFlag: false,
@@ -576,10 +576,10 @@
     },
     computed: {
       ...mapGetters({
-        _Product: 'user/_Product',
         objectid: 'user/objectId',
         role: 'acl/role',
         username: 'user/username',
+        currentDepartment: 'user/currentDepartment',
       }),
       _deviceStep: {
         get() {
@@ -631,7 +631,6 @@
       },
     },
     created() {
-      dgiotlog.log(this._Product, '_Product')
       dgiotlog.log('role', this.role)
 
       dgiotlog.log('this.aclObj', this.aclObj)
@@ -683,6 +682,10 @@
           read: true,
           write: true,
         }
+        // setAcl[`${'role' + ':' + this.currentDepartment.name}`] = {
+        //   read: true,
+        //   write: true,
+        // }
         const params = {
           number: moment(new Date()).unix() + '',
           type: from.type,
@@ -698,6 +701,7 @@
           //   className: '_User',
           // },
           // ACL: this.aclObj,
+          status: 0,
           ACL: _.merge(setAcl, this.aclObj),
           info: {
             photo: from.photo,
@@ -871,9 +875,14 @@
       handleCreated(type) {
         type == 'created' ? this.created++ : this.Assigned++
         this.fetchData()
+        this.getProduct()
+      },
+      async getProduct() {
+        const { results = {} } = await queryProduct({})
+        this.Product = results
       },
       async fetchData(args = {}) {
-        dgiotlog.log(this.created % 2, this.created, 'this.created')
+        console.log(this.created % 2, this.created, 'this.created')
         if (!args.limit) {
           args = this.queryForm
         }
@@ -940,7 +949,7 @@
       async prodChange(e) {
         dgiotlog.log(e)
         this.Device = []
-        this._Product.map((p) => {
+        this.Product.map((p) => {
           if (p.objectId == e) {
             this.form.productname = p.name
           }

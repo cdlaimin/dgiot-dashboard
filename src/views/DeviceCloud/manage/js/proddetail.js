@@ -9,7 +9,7 @@ import { getRule } from "@/api/Rules";
 import { postProductTemplet } from "@/api/ProductTemplet";
 import { Compile, subupadte } from "@/api/System/index";
 import { setTimeout } from "timers";
-import { Websocket } from "@/utils/wxscoket.js";
+import { Websocket } from "@/utils/webscroket/index";
 import wmxdetail from "@/views/DeviceCloud/manage/component/wmxdetail";
 import { returnLogin } from "@/utils/utilwen";
 import profile from "@/views/DeviceCloud/manage/profile";
@@ -465,6 +465,7 @@ export default {
         specs: [],
         dis: '0X10',
         dinumber: 'null',
+        das:[],
       },
       tableData: [],
       activeName: 'first',
@@ -686,6 +687,8 @@ export default {
             attributevalue: '',
           },
         ],
+        das:[],
+        daslist:[],
         rate: 1,
         offset: 0,
         order: 0,
@@ -1467,6 +1470,17 @@ export default {
         attributevalue: '',
       })
     },
+    addDas() {
+        this.sizeForm.daslist.push({
+            addr: '',
+        })
+    },
+    removeDas(item) {
+      var index = this.sizeForm.daslist.indexOf(item)
+      if (index !== -1) {
+        this.sizeForm.daslist.splice(index, 1)
+      }
+    },
     removeDomain1(item) {
       var index = this.structform.specs.indexOf(item)
       if (index !== -1) {
@@ -1480,137 +1494,12 @@ export default {
       })
     },
     // 物模型提交
-    submitForm(sizeForm) {
-      var obj = {
-        name: sizeForm.name,
-        devicetype: sizeForm.devicetype,
-        dataForm: {
-          round: sizeForm.round,
-          data: sizeForm.dinumber,
-          address: sizeForm.dis,
-          rate: sizeForm.rate,
-          offset: sizeForm.offset,
-          order: sizeForm.order,
-          protocol: sizeForm.protocol,
-          operatetype: sizeForm.operatetype,
-          originaltype: sizeForm.originaltype,
-          slaveid: sizeForm.slaveid,
-          collection: sizeForm.collection,
-          control: sizeForm.control,
-          strategy: sizeForm.strategy,
-          iscount: sizeForm.iscount,
-          countstrategy: sizeForm.countstrategy,
-          countround: sizeForm.countround,
-          countcollection: sizeForm.countcollection,
-        },
-        ico: sizeForm.ico,
-        required: true,
-        accessMode: sizeForm.isread,
-        isshow: sizeForm.isshow,
-        identifier: sizeForm.identifier,
-      }
-      // 提交之前需要先判断类型
-      if (
-        sizeForm.type == 'float' ||
-        sizeForm.type == 'double' ||
-        sizeForm.type == 'int' ||
-        sizeForm.type == 'long'
-      ) {
-        let obj1 = {
-          dataType: {
-            type: sizeForm.type.toLowerCase(),
-            specs: {
-              max: sizeForm.endnumber,
-              min: sizeForm.startnumber,
-              step: sizeForm.step,
-              precision: Number(sizeForm.precision),
-              unit: sizeForm.unit == '' ? '' : sizeForm.unit,
-            },
-          },
-        }
-        Object.assign(obj, obj1)
-        // 去除多余的属性
-        if (!this.showNewItem) {
-          delete obj.dataForm.operatetype
-          delete obj.dataForm.originaltype
-          delete obj.dataForm.slaveid
-        }
-      } else if (sizeForm.type == 'image') {
-        var obj1 = {
-          dataType: {
-            type: sizeForm.type.toLowerCase(),
-            imagevalue: sizeForm.imagevalue,
-            specs: {},
-          },
-        }
-        Object.assign(obj, obj1)
-      } else if (sizeForm.type == 'bool') {
-        var obj1 = {
-          dataType: {
-            type: sizeForm.type.toLowerCase(),
-            specs: {
-              0: sizeForm.false,
-              1: sizeForm.true,
-            },
-          },
-        }
-        Object.assign(obj, obj1)
-      } else if (sizeForm.type == 'enum') {
-        var specs = {}
-        sizeForm.struct.map((items) => {
-          var newkey = items['attribute']
-          specs[newkey] = items['attributevalue']
-        })
-        var obj1 = {
-          dataType: {
-            type: sizeForm.type.toLowerCase(),
-            specs: specs,
-          },
-        }
-        Object.assign(obj, obj1)
-      } else if (sizeForm.type == 'struct') {
-        var obj1 = {
-          dataType: {
-            type: sizeForm.type.toLowerCase(),
-            specs: sizeForm.struct,
-          },
-        }
-        Object.assign(obj, obj1)
-      } else if (sizeForm.type == 'text') {
-        var obj1 = {
-          dataType: {
-            type: sizeForm.type.toLowerCase(),
-            size: sizeForm.string,
-            specs: {},
-          },
-        }
-        Object.assign(obj, obj1)
-      } else if (sizeForm.type == 'date') {
-        var obj1 = {
-          dataType: {
-            type: sizeForm.type.toLowerCase(),
-            specs: {},
-          },
-        }
-        Object.assign(obj, obj1)
-      } else if (sizeForm.type == 'geopoint') {
-        var obj1 = {
-          dataType: {
-            type: sizeForm.type.toLowerCase(),
-            gpstype: sizeForm.gpstype,
-            specs: {},
-          },
-        }
-        Object.assign(obj, obj1)
-      }
-      delete obj.index
-
+    submitForm(obj) {
       dgiotlog.log('obj', obj)
       let data = {
         item: obj,
         productid: this.productId,
       }
-
       // 检测到
       if (this.wmxSituation == '新增') {
         // dgiotlog.log("新增");
@@ -1631,8 +1520,6 @@ export default {
           }
         })
       } else if (this.wmxSituation == '编辑') {
-        // dgiotlog.log("编辑" + obj);
-        // this.productdetail.thing.properties[this.modifyIndex] = obj
         putThing(data).then((res) => {
           dgiotlog.log('编辑', res)
           if (res.code == 200) {
@@ -1650,36 +1537,25 @@ export default {
         })
       }
       this.wmxdialogVisible = false
-      // const params = {
-      //   thing: this.productdetail.thing,
-      // }
-      // this.$update_object('Product', this.productId, params)
-      //   .then((resultes) => {
-      //     if (resultes) {
-      //       this.$message({
-      //         type: 'success',
-      //         message: '添加成功',
-      //       })
-      //       this.getProDetail()
-      //       this.wmxdialogVisible = false
-      //     }
-      //   })
-      //   .catch((e) => {
-      //     dgiotlog.log(e)
-      //   })
     },
     createProperty() {
       this.setSizeForm(this.getFormOrginalData())
+        console.log("sizeForm", this.sizeForm)
       this.wmxdialogVisible = true
       this.wmxSituation = '新增'
     },
     // 物模型修改submitForm
     wmxDataFill(rowData, index) {
       this.modifyIndex = index
-      // dgiotlog.log("rowData ", rowData);
       this.wmxdialogVisible = true
       this.wmxSituation = '编辑'
       var obj = {}
+      var daslist = []
+      rowData.dataType.das.forEach((val) => {
+        daslist.push({
+          addr:val
+        })
+      })
       // 提交之前需要先判断类型
       if (
         ['float', 'double', 'int', 'long'].indexOf(rowData.dataType.type) != -1
@@ -1688,6 +1564,7 @@ export default {
           name: rowData.name,
           devicetype: rowData.devicetype,
           type: rowData.dataType.type,
+          daslist: daslist,
           endnumber: this.$objGet(rowData, 'dataType.specs.max'),
           startnumber: this.$objGet(rowData, 'dataType.specs.min'),
           step: this.$objGet(rowData, 'dataType.specs.step'),
@@ -1730,7 +1607,7 @@ export default {
           type: rowData.dataType.type,
           true: rowData.dataType.specs[1],
           false: rowData.dataType.specs[0],
-          // rowData.dataForm.
+          daslist: daslist,
           startnumber: this.$objGet(rowData, 'dataType.specs.min'),
           step: this.$objGet(rowData, 'dataType.specs.step'),
           unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1767,7 +1644,7 @@ export default {
           devicetype: rowData.devicetype,
           type: rowData.dataType.type,
           imagevalue: rowData.dataType.imagevalue,
-          // rowData.dataForm.
+          daslist: daslist,
           startnumber: this.$objGet(rowData, 'dataType.specs.min'),
           step: this.$objGet(rowData, 'dataType.specs.step'),
           unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1812,6 +1689,7 @@ export default {
           type: rowData.dataType.type,
           specs: rowData.dataType.specs,
           struct: structArray,
+          daslist: daslist,
           startnumber: this.$objGet(rowData, 'dataType.specs.min'),
           step: this.$objGet(rowData, 'dataType.specs.step'),
           unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1848,6 +1726,7 @@ export default {
           devicetype: rowData.devicetype,
           type: rowData.dataType.type,
           struct: rowData.dataType.specs,
+          daslist: daslist,
           startnumber: this.$objGet(rowData, 'dataType.specs.min'),
           step: this.$objGet(rowData, 'dataType.specs.step'),
           unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1888,6 +1767,7 @@ export default {
           control:
             rowData.dataForm == undefined ? '' : rowData.dataForm.control,
           string: rowData.dataType.size,
+          daslist: daslist,
           startnumber: this.$objGet(rowData, 'dataType.specs.min'),
           step: this.$objGet(rowData, 'dataType.specs.step'),
           unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1925,6 +1805,7 @@ export default {
             rowData.dataForm == undefined ? '' : rowData.dataForm.control,
           strategy:
             rowData.dataForm == undefined ? '' : rowData.dataForm.strategy,
+          daslist: daslist,
           startnumber: this.$objGet(rowData, 'dataType.specs.min'),
           step: this.$objGet(rowData, 'dataType.specs.step'),
           unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1961,6 +1842,7 @@ export default {
             rowData.dataForm == undefined ? '' : rowData.dataForm.control,
           strategy:
             rowData.dataForm == undefined ? '' : rowData.dataForm.strategy,
+          daslist: daslist,
           startnumber: this.$objGet(rowData, 'dataType.specs.min'),
           step: this.$objGet(rowData, 'dataType.specs.step'),
           unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -2168,6 +2050,8 @@ export default {
               message: '添加成功',
             })
             this.schemadialogVisible = false
+            // 手动更新完物模型后，再去查询一下当前页面的物模型
+            this.getProDetail()
           }
         })
         .catch((e) => {

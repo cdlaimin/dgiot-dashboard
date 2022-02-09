@@ -396,7 +396,7 @@
 </template>
 
 <script>
-  import { create_object, query_object, update_object } from '@/api/shuwa_parse'
+  import { create_object, query_object, update_object } from '@/api/Parse'
   import { batch } from '@/api/Batch'
   import { queryDevice } from '@/api/Device'
   import { mapGetters, mapMutations } from 'vuex'
@@ -511,6 +511,7 @@
         objectid: 'user/objectId',
         role: 'acl/role',
         username: 'user/username',
+        currentDepartment: 'user/currentDepartment',
       }),
       _deviceStep: {
         get() {
@@ -617,7 +618,7 @@
         const params = {
           number: moment(new Date()).unix() + '',
           type: from.type,
-          // status: 0,
+          status: 0,
           // product: {
           //   objectId: from.product,
           //   __type: 'Pointer',

@@ -28,8 +28,7 @@
 
 <script>
   import { mapActions, mapGetters } from 'vuex'
-  import { toLoginRoute } from '@/utils/routes'
-
+  import { toLoginRoute } from '@/utils/router/routes'
   export default {
     name: 'VabAvatar',
     data() {
@@ -42,9 +41,13 @@
         avatar: 'user/avatar',
         username: 'user/username',
         objectId: 'user/objectId',
+        extra: 'settings/extra',
+        visitedRoutes: 'tabs/visitedRoutes',
       }),
     },
+    async created() {},
     mounted() {
+      console.log('window.name\n', window.name)
       // document.getElementsByTagName('link')[0].href = this.avatar
     },
     methods: {

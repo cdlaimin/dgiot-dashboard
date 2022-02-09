@@ -10,8 +10,8 @@ import {
   del_object,
   query_object,
   update_object,
-} from '@/api/shuwa_parse'
-import request from '@/utils/request'
+} from '@/api/Parse'
+import request from '@/utils/request/request'
 
 export async function post_tree(params) {
   return request({

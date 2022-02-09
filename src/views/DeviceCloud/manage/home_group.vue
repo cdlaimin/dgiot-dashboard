@@ -71,7 +71,14 @@
               <span>{{ row.category.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="$translateTitle('product.addingtime')">
+          <el-table-column
+            align="center"
+            :label="$translateTitle('product.addingtime')"
+            prop="row.createdAt"
+            show-overflow-tooltip
+            sortable
+            width="100"
+          >
             <template #default="{ row }">
               <span>{{ utc2beijing(row.createdAt) }}</span>
             </template>
@@ -152,7 +159,7 @@
         :title="$translateTitle('product.createproduct')"
         top="5vh"
         :visible.sync="dialogFormVisible"
-        width="40%"
+        width="50%"
       >
         <div class="content">
           <!--产品信息-->
@@ -382,7 +389,7 @@
         :append-to-body="true"
         :title="$translateTitle('developer.newvirtualgroup')"
         :visible.sync="groupform"
-        width="25%"
+        width="30%"
       >
         <el-form
           ref="addGroup"
@@ -507,10 +514,9 @@
   import { getHashClass } from '@/api/Hash/index'
   import { postDict, queryDict } from '@/api/Dict/index'
   // const Base64 = require('js-base64').Base64
-  import { export_txt_to_zip } from '@/utils/Export2Zip.js'
+  import { export_txt_to_zip } from '@/utils/file/export2zip.js'
   import Cookies from 'js-cookie'
   import { addGroup } from '@/api/Group/index'
-
   export default {
     data() {
       return {

@@ -1,53 +1,6 @@
-import request from '@/utils/request'
+import request from '@/utils/request/request'
 import store from '@/store'
 import { Message } from 'element-ui'
-
-export function Upload({ file }) {
-  return request({
-    url: 'upload',
-    method: 'post',
-    params: {
-      file,
-    },
-  })
-}
-
-// 配置管理API
-export function file_reload(params) {
-  return request({
-    url: 'file_reload',
-    method: 'post',
-    params: params,
-  })
-}
-
-// 文件信息统计
-export function file_stat(params) {
-  return request({
-    url: 'file_stat',
-    method: 'get',
-    params: params,
-  })
-}
-
-// 获取文件列表
-export function list_dir(params) {
-  return request({
-    url: 'list_dir',
-    method: 'get',
-    params: params,
-  })
-}
-
-// 获取文件信息
-export function file_info(params) {
-  return request({
-    url: 'file_info',
-    method: 'get',
-    params: params,
-  })
-}
-
 // 删除文件
 export function Delete(params) {
   return request({
@@ -82,13 +35,13 @@ export async function UploadImg(params) {
     },
     params
   )
-  dgiotlog.log(params, 'params')
+  console.log(params, 'params')
   var formData = new FormData()
   params.path = 'dgiot_file/' + params.path
   for (let key in params) {
     formData.append(key, params[key])
   }
-  dgiotlog.log('formData', formData)
+  console.log('formData', formData)
   const isParamsKey = [
     'file',
     'scene',
@@ -103,13 +56,13 @@ export async function UploadImg(params) {
     // eslint-disable-next-line no-prototype-builtins
     return params.hasOwnProperty(`${e}`)
   })
-  dgiotlog.log(process.env.VUE_APP_URL)
+  console.log(process.env.VUE_APP_URL)
   let url = 'upload'
   const { NODE_ENV = 'development' } = process.env
 
   NODE_ENV == 'development'
     ? (url = `${process.env.VUE_APP_URL}/upload`)
-    : (url = 'upload')
+    : (url = location.origin + '/upload')
   if (result) {
     return axios
       .post(url, formData, {
@@ -117,7 +70,7 @@ export async function UploadImg(params) {
         'Content-Type': 'application/json; charset=utf-8',
       })
       .catch((e) => {
-        dgiotlog.log(e)
+        console.log(e)
         return { data: {} }
       })
   } else {
@@ -143,7 +96,7 @@ export function exlout(params) {
       'Content-Type': 'application/json; charset=utf-8',
       responseType: 'blob',
     })
-    .catch((err) => dgiotlog.log(err))
+    .catch((err) => console.log(err))
 }
 
 /**
@@ -164,5 +117,5 @@ export async function downBinary(url, params) {
       },
       responseType: 'blob',
     })
-    .catch((err) => dgiotlog.log(err))
+    .catch((err) => console.log(err))
 }

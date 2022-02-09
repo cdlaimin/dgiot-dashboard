@@ -41,7 +41,7 @@
         width="80vh"
       >
         <baidu-map
-          ak="fnc5Z92jC7CwfBGz8Dk66E9sXEIYZ6TG"
+          :ak="secret.baidu.map"
           :center="center"
           :map-click="false"
           :scroll-wheel-zoom="true"
@@ -229,7 +229,7 @@
                     <i
                       slot="suffix"
                       class="el-icon-search"
-                      style="color: #606266; cursor: pointer; line-height: 32px"
+                      style="line-height: 32px; color: #606266; cursor: pointer"
                       @click="getDevices({ start: 0 })"
                     ></i>
                   </el-input>
@@ -322,11 +322,12 @@
               ref="filterTable"
               v-loading="listLoading"
               :border="border"
+              class="tab_wrap_1"
               :data="tableData"
               :row-style="rowClass"
               :size="lineHeight"
               :stripe="stripe"
-              style="width: 100%; margin-top: 20px; text-align: center"
+              style="margin-top: 20px; text-align: center"
               @selection-change="changeBox"
             >
               <el-table-column
@@ -343,7 +344,7 @@
                 prop="devaddr"
                 show-overflow-tooltip
                 sortable
-                width="120"
+                width="100"
               />
               <el-table-column
                 align="center"
@@ -351,13 +352,7 @@
                 prop="name"
                 show-overflow-tooltip
                 sortable
-              >
-                <template #default="{ row }">
-                  <span style="margin: 0; color: green">
-                    {{ row.name }}
-                  </span>
-                </template>
-              </el-table-column>
+              />
               <el-table-column
                 align="center"
                 :label="$translateTitle('equipment.state')"
@@ -413,21 +408,15 @@
                 prop="product.name"
                 show-overflow-tooltip
                 sortable
-                width="200"
-              >
-                <template #default="{ row }">
-                  <span v-if="row.product && row.product.name">
-                    {{ row.product.name || '' }}
-                  </span>
-                </template>
-              </el-table-column>
+                width="auto"
+              />
               <el-table-column
                 align="center"
                 :label="$translateTitle('developer.Company')"
                 prop="Company"
                 show-overflow-tooltip
                 sortable
-                width="200"
+                width="auto"
               />
               <el-table-column
                 align="center"
@@ -439,7 +428,7 @@
                 prop="isEnable"
                 show-overflow-tooltip
                 sortable
-                width="120"
+                width="auto"
               >
                 <template #default="{ row, $index }">
                   <el-switch
@@ -456,7 +445,7 @@
                 prop="createdAt"
                 show-overflow-tooltip
                 sortable
-                width="200"
+                width="auto"
               >
                 <template #default="{ row }">
                   <span>{{ utc2beijing(row.createdAt) }}</span>
@@ -466,11 +455,13 @@
                 align="center"
                 fixed="right"
                 :label="$translateTitle('developer.operation')"
-                width="300"
+                min-width="220"
+                width="auto"
               >
                 <template #default="{ row }">
                   <el-button
                     size="mini"
+                    style="margin-left: 10px"
                     type="primary"
                     @click="deviceToDetail(row)"
                   >
@@ -510,7 +501,7 @@
                         <el-link
                           size="mini"
                           type="primary"
-                          @click="showTree(row.objectId, row.Company)"
+                          @click="showTree(row, row.objectId, row.Company)"
                         >
                           {{ $translateTitle('equipment.move') }}
                         </el-link>
@@ -558,26 +549,19 @@
               <el-table-column
                 align="center"
                 :label="$translateTitle('equipment.devicenumber')"
+                prop="devaddr"
                 show-overflow-tooltip
                 sortable
-                width="120"
-              >
-                <template #default="{ row }">
-                  {{ row.devaddr }}
-                </template>
-              </el-table-column>
+                width="auto"
+              />
               <el-table-column
                 align="center"
                 :label="$translateTitle('equipment.name')"
+                prop="name"
                 show-overflow-tooltip
                 sortable
-              >
-                <template #default="{ row }">
-                  <span style="margin: 0; color: green">
-                    {{ row.name }}
-                  </span>
-                </template>
-              </el-table-column>
+                width="auto"
+              />
               <el-table-column
                 align="center"
                 :label="$translateTitle('equipment.state')"
@@ -620,7 +604,7 @@
                 :label="$translateTitle('equipment.product')"
                 show-overflow-tooltip
                 sortable
-                width="200"
+                width="auto"
               >
                 <template #default="{ row }">
                   <span v-if="row.product && row.product.name">
@@ -633,7 +617,7 @@
                 :label="$translateTitle('developer.Company')"
                 show-overflow-tooltip
                 sortable
-                width="200"
+                width="auto"
               >
                 <template #default="{ row }">
                   <span>
@@ -723,68 +707,71 @@
                 <template #default="{ row }">
                   <el-button
                     size="mini"
+                    style="margin-left: 10px"
                     type="primary"
                     @click="deviceToDetail(row)"
                   >
-                    {{ $translateTitle('equipment.see') }}
+                    {{ $translateTitle('product.details') }}
                   </el-button>
-
                   <el-button
                     size="mini"
+                    style="text-align: center"
                     type="warning"
-                    @click="editorDevice(row)"
+                    @click="showInfo(row)"
                   >
-                    {{ $translateTitle('concentrator.edit') }}
+                    {{ $translateTitle('product.parser') }}
                   </el-button>
-                  <el-button
-                    size="mini"
-                    type="danger"
-                    @click="handleDelete(row, 2)"
-                  >
-                    {{ $translateTitle('developer.delete') }}
+                  <el-button size="mini" type="info" @click="konvaDevice(row)">
+                    {{ $translateTitle('concentrator.konva') }}
                   </el-button>
-
-                  <el-popover
-                    placement="left"
-                    style="margin: 0 10px"
-                    trigger="click"
-                  >
-                    <el-button
-                      :disabled="!row.location"
-                      size="mini"
-                      type="primary"
-                      @click="showMap(row.location, row.objectId)"
-                    >
-                      {{ $translateTitle('equipment.location') }}
-                    </el-button>
+                  <el-dropdown style="margin: 0 10px">
                     <el-button
                       size="mini"
-                      type="warning"
-                      @click="showInfo(row)"
+                      type="danger"
+                      @click="isFullscreen = !isFullscreen"
                     >
-                      {{ $translateTitle('equipment.info') }}
+                      {{ $translateTitle('concentrator.more') }}
                     </el-button>
 
-                    <el-button
-                      size="mini"
-                      type="success"
-                      @click="showTree(row.objectId, row.Company)"
-                    >
-                      {{ $translateTitle('equipment.move') }}
-                    </el-button>
-
-                    <el-button
-                      size="mini"
-                      type="info"
-                      @click="konvaDevice(row)"
-                    >
-                      {{ $translateTitle('concentrator.konva') }}
-                    </el-button>
-
-                    <el-button slot="reference" size="mini" type="info">
-                      {{ $translateTitle('developer.operation') }}
-                    </el-button>
-                  </el-popover>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item>
+                        <el-link
+                          size="info"
+                          type="success"
+                          @click="editorDevice(row)"
+                        >
+                          {{ $translateTitle('concentrator.edit') }}
+                        </el-link>
+                      </el-dropdown-item>
+                      <el-dropdown-item>
+                        <el-link
+                          size="mini"
+                          type="primary"
+                          @click="showTree(row, row.objectId, row.Company)"
+                        >
+                          {{ $translateTitle('equipment.move') }}
+                        </el-link>
+                      </el-dropdown-item>
+                      <el-dropdown-item>
+                        <el-link
+                          size="mini"
+                          type="warning"
+                          @click="goLink('video', row)"
+                        >
+                          {{ $translateTitle('concentrator.video') }}
+                        </el-link>
+                      </el-dropdown-item>
+                      <el-dropdown-item>
+                        <el-link
+                          size="mini"
+                          type="danger"
+                          @click="handleDelete(row, 2)"
+                        >
+                          {{ $translateTitle('developer.delete') }}
+                        </el-link>
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
                 </template>
               </el-table-column>
             </el-table>
@@ -797,12 +784,20 @@
               <!--                @size-change="deviceSizeChange"-->
               <!--                @current-change="deviceCurrentChange"-->
               <!--              />-->
-              <vab-Pagination
-                v-show="devicetotal > 0"
-                :limit.sync="queryForm.pageSize"
-                :page.sync="queryForm.pageNo"
-                :total="devicetotal"
+              <!--              <vab-Pagination-->
+              <!--                v-show="devicetotal > 0"-->
+              <!--                :limit.sync="queryForm.pageSize"-->
+              <!--                :page.sync="queryForm.pageNo"-->
+              <!--                :total="devicetotal"-->
+              <!--                @pagination="getDevices"-->
+              <!--              />-->
+              <vab-parser-pagination
+                :key="devicetotal.length + 'forensics'"
+                ref="devicePagination"
+                :pagination="paginations"
+                :query-payload="queryPayload"
                 @pagination="getDevices"
+                @paginationQuery="paginationQuery"
               />
             </div>
           </div>
@@ -819,7 +814,7 @@
         </el-tab-pane>
         <el-tab-pane :label="$translateTitle('equipment.map')" name="second">
           <baidu-map
-            ak="fnc5Z92jC7CwfBGz8Dk66E9sXEIYZ6TG"
+            :ak="secret.baidu.map"
             :center="{ lng: 116.404, lat: 39.915 }"
             class="map"
             :scroll-wheel-zoom="true"
@@ -873,7 +868,6 @@
             />
           </baidu-map>
         </el-tab-pane>
-
         <!--        <el-tab-pane-->
         <!--          :label="$translateTitle('leftbar.analysis')"-->
         <!--          name="analysis"-->
@@ -953,7 +947,7 @@
         :close-on-click-modal="false"
         :title="$translateTitle('product.edit') + equipmentEditor"
         :visible.sync="devicedialogVisible"
-        width="50%"
+        width="70%"
       >
         <div slot="title" class="header-title">
           <span class="title-name">
@@ -1281,7 +1275,7 @@
           </el-form>
           <!-- <label>地址：<input v-model="bmapfrom.keyword"></label> -->
           <baidu-map
-            ak="fnc5Z92jC7CwfBGz8Dk66E9sXEIYZ6TG"
+            :ak="secret.baidu.map"
             :center="center"
             :map-click="false"
             :scroll-wheel-zoom="true"
@@ -1330,12 +1324,12 @@
   </div>
 </template>
 <script>
+  import deviceState from '@/components/Device/deviceState'
   import { mapGetters, mapMutations } from 'vuex'
-  import { get_object } from '@/api/shuwa_parse'
+  import { get_object } from '@/api/Parse'
   import { batch, Batchdelete } from '@/api/Batch'
   import { Promise } from 'q'
   import { getProduct, queryProduct } from '@/api/Product/index'
-  import deviceState from '@/components/Device/deviceState'
   import {
     BaiduMap,
     BmCityList,
@@ -1353,7 +1347,7 @@
   import { returnLogin } from '@/utils/utilwen'
   import { addimeidevice, putDevice, querycompanyDevice } from '@/api/Device'
   import { getToken } from '@/api/Menu'
-
+  import { secret } from '@/config/secret.config'
   var pcdata
   export default {
     components: {
@@ -1409,6 +1403,18 @@
         }
       }
       return {
+        deviceInfo: {},
+        paginations: { layout: 'total, sizes, prev, pager, next, jumper' },
+        queryPayload: {
+          excludeKeys: 'data',
+          include: '',
+          order: '-createdAt',
+          limit: 10,
+          skip: 0,
+          count: 'objectId',
+        },
+        secret: secret,
+        productDetail: {},
         addACL: {},
         videoOptions: ['m3u8', 'mp4', 'flv', 'mp3'],
         queryInfo: {},
@@ -1642,6 +1648,7 @@
         language: 'settings/language',
         _product: 'user/_Product',
         _role: 'acl/role',
+        currentDepartment: 'user/currentDepartment',
       }),
     },
     watch: {
@@ -1668,6 +1675,9 @@
       dgiotlog.log('this.aclObj', this.aclObj)
     },
     methods: {
+      async paginationQuery(queryPayload) {
+        this.queryPayload = queryPayload
+      },
       goLink(type, item) {
         const { basedata } = item
         if (basedata?.videoSrc?.length) {
@@ -1934,7 +1944,8 @@
       },
 
       // 显示菜单树
-      showTree(objectId, acl) {
+      showTree(row, objectId, acl) {
+        this.deviceInfo = row
         this.deviceId = objectId
         this.deciceCompany = acl
         this.popoverVisible = !this.popoverVisible
@@ -2061,9 +2072,10 @@
           read: true,
           write: true,
         }
+        this.deviceInfo.detail['factory'] = data.depname
         const parmas = {
           ACL: aclObj,
-          detail: { factory: data.depname },
+          detail: this.deviceInfo.detail,
         }
         this.$confirm(
           this.$translateTitle(`确定要将设备迁移到` + data.name + '吗'),
@@ -2302,44 +2314,29 @@
         }
       },
       async getDevices(args = {}) {
-        if (!args.limit) {
-          args = this.queryForm
-        }
-        dgiotlog.log('args', args)
         this.listLoading = true
         const loading = this.$baseColorfullLoading(3)
         this.tableData = []
-        const params = {
-          limit: args.limit,
-          skip: args.skip,
-          order: args.order,
-          count: 'objectId',
-          include: 'product,name',
-          where: {
-            'profile.identifier': { $ne: 'inspectionReportTemp' },
-            product: { $ne: null },
-            name: {
-              $ne: null,
-              $exists: true,
-            },
-          },
-        }
-        if (this.deviceinput != '') {
-          if (this.selectdevice == '设备名称') {
-            params.where.name = { $regex: this.deviceinput }
-          } else {
-            params.where.devaddr = { $regex: this.deviceinput }
-          }
-        }
-        if (this.onlinedevices != '') {
-          if (this.onlinedevices == '在线') {
-            params.where.status = 'ONLINE'
-          } else {
-            params.where.status = 'OFFLINE'
-          }
-        }
-        if (this.devicenumber != '') {
-          params.where.devaddr = { $regex: this.deviceinput }
+        this.queryPayload.include = 'product,name'
+        this.queryPayload.where = {
+          product: { $ne: null },
+          name:
+            this.selectdevice === '设备名称' && this.deviceinput
+              ? { $regex: this.deviceinput }
+              : {
+                  $ne: null,
+                  $exists: true,
+                },
+          devaddr:
+            this.selectdevice === '设备编号' && this.deviceinput
+              ? { $regex: this.deviceinput }
+              : { $ne: null },
+          status:
+            this.onlinedevices == '在线'
+              ? 'ONLINE'
+              : this.onlinedevices == '离线'
+              ? 'OFFLINE'
+              : { $ne: null },
         }
         if (this.equvalue != 0) {
           // params.where.product = this.equvalue
@@ -2348,9 +2345,10 @@
         if (args.start == 0) {
           this.devicestart = 0
         }
+        delete this.queryPayload.productid
         try {
           const { results = [], count = 0 } = await querycompanyDevice(
-            params,
+            this.queryPayload,
             this.queryForm.access_token
           )
           this.listLoading = false
@@ -2374,6 +2372,8 @@
           })
           this.tableData = results
           this.devicetotal = count
+          this.$refs['devicePagination'].ination.total = count
+
           // 查询在线设备
           // this.getOnlineDevices()
         } catch (error) {
@@ -2758,7 +2758,8 @@
         this.arrlist = []
         getProduct(objectId).then((res) => {
           const { config = { basedate: {} }, ACL } = res
-          this.addACL = ACL
+          this.productDetail = res
+          // this.addACL = ACL
           if (config.basedate && config.basedate.params.length > 0) {
             this.arrlist = config.basedate.params
             if (flag == 'add') {
@@ -2883,6 +2884,12 @@
                   //   read: true,
                   //   write: true,
                   // }
+                  const aclKey = 'role' + ':' + this.currentDepartment.name
+                  const setAcl = {}
+                  setAcl[aclKey] = {
+                    read: true,
+                    write: true,
+                  }
                   var devicesParmas = {
                     product: {
                       __type: 'Pointer',
@@ -2891,7 +2898,7 @@
                     },
                     status: 'OFFLINE',
                     isEnable: false,
-                    ACL: this.addACL,
+                    ACL: setAcl,
                     name: this.deviceform.name,
                     devaddr: this.deviceform.devaddr,
                     objectId: this.deviceform.devaddr,
@@ -2900,6 +2907,10 @@
                     location: location,
                     basedata: obj,
                   }
+                  devicesParmas.detail.devType = this.productDetail.devType
+                  devicesParmas.detail.category =
+                    this.productDetail.category.objectId
+                  console.log('createDevice params\n ', devicesParmas)
                   this.createDevice(devicesParmas)
                 }
               })
@@ -2972,12 +2983,48 @@
   }
 </script>
 <style lang="scss" scoped>
-  ::v-deep {
-    .el-input-group__append {
-      //padding: 0;
+  @media screen and(max-width:600px) {
+    .multipane {
+      width: 500px;
+      .equtabs {
+        width: 500px;
+      }
+      .pane {
+        width: 500px;
+      }
+      .equde_wrap {
+        width: 500px;
+        .equdevices {
+          width: 100%;
+          .tabstable {
+            width: 90%;
+            .tab_wrap_1 {
+              width: 500px;
+              .operation_right {
+                width: 100px;
+              }
+            }
+          }
+        }
+      }
+    }
+    .el-tabs {
+      width: 100%;
+    }
+    .el-tabs__content {
+      .el-form {
+        width: 100%;
+        .el-row {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          .el-col-12 {
+            width: 80%;
+          }
+        }
+      }
     }
   }
-
   .equtabs {
     margin-top: -40px;
     //height: calc(120vh - #{$base-top-bar-height} * 4);

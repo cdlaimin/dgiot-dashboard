@@ -17,7 +17,9 @@
       <wmxdetail
         ref="sizeForm"
         :size-form1="sizeForm"
+        @addDas="addDas"
         @addDomain="addDomain"
+        @removeDas="removeDas"
         @removeDomain="removeDomain"
         @submitForm="submitFormwmx"
         @wmxhandleClose="wmxhandleClose"
@@ -51,14 +53,14 @@
       top="1vh"
       :visible.sync="dialogVisible"
     >
-      <vab-parser
-        :dba-table="DbaTable"
-        :dict="parserDict"
-        :form-config="formConfig"
-        :parserindex="editIndex"
-        :productid="producttempId"
-        @ParserSave="saveParse"
-      />
+      <!--      <vab-parser-->
+      <!--        :dba-table="DbaTable"-->
+      <!--        :dict="parserDict"-->
+      <!--        :form-config="formConfig"-->
+      <!--        :parserindex="editIndex"-->
+      <!--        :productid="producttempId"-->
+      <!--        @ParserSave="saveParse"-->
+      <!--      />-->
       <!--      <span slot="footer" class="dialog-footer">-->
       <!--        <el-button @click="dialogVisible = false">取 消</el-button>-->
       <!--        <el-button type="primary" @click.native="dialogVisible = false">-->
@@ -136,7 +138,7 @@
         </vab-query-form-top-panel>
       </vab-query-form>
       <el-row :gutter="24">
-        <el-col :lg="4" :md="5" :sm="6" :xl="3" :xs="12">
+        <el-col :lg="4" :md="5" :sm="6" :xl="3" :xs="4">
           <ul
             class="infinite-list"
             style="overflow: auto"
@@ -156,73 +158,55 @@
                 class="el-icon-plus"
                 plain
                 size="mini"
-                type="primary"
+                type="text"
                 @click.stop="addproducttemp(item)"
               />
             </li>
           </ul>
         </el-col>
-        <el-col :lg="10" :md="6" :sm="6" :xl="5" :xs="12">
-          <div class="protable">
-            <el-table
-              ref="multipleTable"
-              v-loading="listLoading"
-              :cell-style="{ 'text-align': 'center' }"
-              :data="proTableData"
-              :header-cell-style="{ 'text-align': 'center' }"
-              :height="tableHeight"
-              highlight-current-row
-              size="medium"
-              style="width: 100%"
-              @row-click="StepsListRowClick"
+        <el-col :lg="5" :md="6" :sm="6" :xl="3" :xs="4">
+          <el-table
+            ref="multipleTable"
+            v-loading="listLoading"
+            :cell-style="{ 'text-align': 'center' }"
+            :data="proTableData"
+            :header-cell-style="{ 'text-align': 'center' }"
+            :height="tableHeight"
+            highlight-current-row
+            size="medium"
+            style="width: 100%"
+            @row-click="StepsListRowClick"
+          >
+            <el-table-column
+              :label="$translateTitle('product.productname')"
+              prop="name"
+              show-overflow-tooltip
+              sortable
+              width="auto"
+            />
+            <el-table-column
+              fixed="right"
+              :label="$translateTitle('developer.operation')"
+              width="auto"
             >
-              <el-table-column
-                :label="$translateTitle('product.productname')"
-                show-overflow-tooltip
-                width="80"
-              >
-                <template #default="{ row }">
-                  <span>{{ row.name }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                :label="$translateTitle('product.classification')"
-                show-overflow-tooltip
-                width="80"
-              >
-                <template #default="{ row }">
-                  <span>
-                    {{ row.category ? row.category.name : '' }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                fixed="right"
-                :label="$translateTitle('developer.operation')"
-                width="145"
-              >
-                <template #default="{ row }">
-                  <el-button
-                    size="mini"
-                    type="success"
-                    :underline="false"
-                    @click.stop="editproducttemp(row)"
-                  >
-                    {{ $translateTitle('concentrator.edit') }}
-                  </el-button>
-                  <el-button
-                    slot="reference"
-                    size="mini"
-                    type="danger"
-                    @click.stop="deleteproducttemp(row)"
-                  >
-                    {{ $translateTitle('developer.delete') }}
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-          <div class="elpagination" style="margin-top: 20px">
+              <template #default="{ row }">
+                <el-button
+                  class="el-icon-edit"
+                  :title="$translateTitle('developer.delete')"
+                  type="text"
+                  @click.stop="editproducttemp(row)"
+                />
+                <el-button
+                  class="el-icon-delete"
+                  style="color: red"
+                  :title="$translateTitle('developer.delete')"
+                  type="text"
+                  @click.stop="deleteproducttemp(row)"
+                />
+              </template>
+            </el-table-column>
+          </el-table>
+          <!-- <div class="elpagination" style="margin-top: 20px">
             <el-pagination
               layout="total, sizes, prev, pager, next, jumper"
               :page-size="length"
@@ -231,9 +215,9 @@
               @current-change="productCurrentChange"
               @size-change="productSizeChange"
             />
-          </div>
+          </div> -->
         </el-col>
-        <el-col :lg="10" :md="13" :sm="18" :xl="16" :xs="24">
+        <el-col :lg="15" :md="13" :sm="12" :xl="18" :xs="16">
           <profile-descriptions
             ref="ProfileDescription"
             :decoder-table-list="decoderTableList"
@@ -367,27 +351,27 @@
 </template>
 <!--eslint-disable-->
 <script>
-  import { queryCategory } from "@/api/Category";
-  import { mapGetters, mapMutations } from "vuex";
-  import { putProduct } from "@/api/Product";
-  import { getAllunit } from "@/api/Dict/index";
-  import { export_txt_to_zip } from "@/utils/Export2Zip.js";
-  import { getServer } from "@/api/Role/index";
-  import { postDict } from "@/api/Dict";
-  import { getHashClass } from "@/api/Hash";
-  import { getTable } from "@/api/Dba";
+  import { queryCategory } from '@/api/Category'
+  import { mapGetters, mapMutations } from 'vuex'
+  import { putProduct } from '@/api/Product'
+  import { getAllunit } from '@/api/Dict/index'
+  import { export_txt_to_zip } from '@/utils/file/export2zip.js'
+  import { getServer } from '@/api/Role/index'
+  import { postDict } from '@/api/Dict'
+  import { getHashClass } from '@/api/Hash'
+  import { getTable } from '@/api/Dba'
   import {
     delProductTemplet,
     getProductTemplet,
     postProductTemplet,
     putProductTemplet,
-    queryProductTemplet
-  } from "@/api/ProductTemplet";
-  import { ImportParse } from "@/api/Export";
-  import { uuid } from "@/utils";
-  import wmxdetail from "./component/wmxdetail";
-  import { setTimeout } from "timers";
-  import { post_tree } from "@/api/Data";
+    queryProductTemplet,
+  } from '@/api/ProductTemplet'
+  import { ImportParse } from '@/api/Export'
+  import { uuid } from '@/utils'
+  import wmxdetail from './component/wmxdetail'
+  import { setTimeout } from 'timers'
+  import { post_tree } from '@/api/Logs'
 
   const context = require.context('./component/profile', true, /\.vue$/)
   let res_components = {}
@@ -730,10 +714,10 @@
             // this.categorysonList.push(data)
             this.categorysonList = [data].concat(res.results)
             var categorys = []
-            this.categorysonList.forEach(son=>{
+            this.categorysonList.forEach((son) => {
               categorys.push(son.objectId)
             })
-            this.queryProduttemp({categorys:{"$in":categorys}})
+            this.queryProduttemp({ categorys: { $in: categorys } })
           })
         }
         loading.close()
@@ -968,6 +952,7 @@
         dgiotlog.log(list)
       },
       async featchTable() {
+        this.setTreeFlag(false)
         try {
           const { results: table = [] } = await getTable()
           this.DbaTable = table
@@ -1312,6 +1297,7 @@
       // 物模型
       ...mapMutations({
         setSizeForm: 'konva/setSizeForm',
+        setTreeFlag: 'settings/setTreeFlag',
       }),
       getFormOrginalData() {
         return {
@@ -1358,6 +1344,7 @@
           countstrategy: 20,
           countround: 'all',
           countcollection: '%s',
+          daslist: [],
         }
       },
       createProperty() {
@@ -1410,6 +1397,12 @@
         this.wmxdialogVisible = true
         this.wmxSituation = '编辑'
         var obj = {}
+        var daslist = []
+        rowData.dataType.das.forEach((val) => {
+          daslist.push({
+            addr: val,
+          })
+        })
         // 提交之前需要先判断类型
         if (
           ['float', 'double', 'int', 'long'].indexOf(rowData.dataType.type) !=
@@ -1419,6 +1412,7 @@
             name: rowData.name,
             devicetype: rowData.devicetype,
             type: rowData.dataType.type,
+            daslist: daslist,
             endnumber: this.$objGet(rowData, 'dataType.specs.max'),
             startnumber: this.$objGet(rowData, 'dataType.specs.min'),
             step: this.$objGet(rowData, 'dataType.specs.step'),
@@ -1461,7 +1455,7 @@
             type: rowData.dataType.type,
             true: rowData.dataType.specs[1],
             false: rowData.dataType.specs[0],
-            // rowData.dataForm.
+            daslist: daslist,
             startnumber: this.$objGet(rowData, 'dataType.specs.min'),
             step: this.$objGet(rowData, 'dataType.specs.step'),
             unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1498,7 +1492,7 @@
             devicetype: rowData.devicetype,
             type: rowData.dataType.type,
             imagevalue: rowData.dataType.imagevalue,
-            // rowData.dataForm.
+            daslist: daslist,
             startnumber: this.$objGet(rowData, 'dataType.specs.min'),
             step: this.$objGet(rowData, 'dataType.specs.step'),
             unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1543,6 +1537,7 @@
             type: rowData.dataType.type,
             specs: rowData.dataType.specs,
             struct: structArray,
+            daslist: daslist,
             startnumber: this.$objGet(rowData, 'dataType.specs.min'),
             step: this.$objGet(rowData, 'dataType.specs.step'),
             unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1579,6 +1574,7 @@
             devicetype: rowData.devicetype,
             type: rowData.dataType.type,
             struct: rowData.dataType.specs,
+            daslist: daslist,
             startnumber: this.$objGet(rowData, 'dataType.specs.min'),
             step: this.$objGet(rowData, 'dataType.specs.step'),
             unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1619,6 +1615,7 @@
             control:
               rowData.dataForm == undefined ? '' : rowData.dataForm.control,
             string: rowData.dataType.size,
+            daslist: daslist,
             startnumber: this.$objGet(rowData, 'dataType.specs.min'),
             step: this.$objGet(rowData, 'dataType.specs.step'),
             unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1656,6 +1653,7 @@
               rowData.dataForm == undefined ? '' : rowData.dataForm.control,
             strategy:
               rowData.dataForm == undefined ? '' : rowData.dataForm.strategy,
+            daslist: daslist,
             startnumber: this.$objGet(rowData, 'dataType.specs.min'),
             step: this.$objGet(rowData, 'dataType.specs.step'),
             unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1692,6 +1690,7 @@
               rowData.dataForm == undefined ? '' : rowData.dataForm.control,
             strategy:
               rowData.dataForm == undefined ? '' : rowData.dataForm.strategy,
+            daslist: daslist,
             startnumber: this.$objGet(rowData, 'dataType.specs.min'),
             step: this.$objGet(rowData, 'dataType.specs.step'),
             unit: this.$objGet(rowData, 'dataType.specs.unit'),
@@ -1720,8 +1719,24 @@
         this.setSizeForm(obj)
         // dgiotlog.log('this.sizeForm', this.sizeForm)
       },
+      addDas() {
+        this.sizeForm.daslist.push({
+          addr: '',
+        })
+      },
+      removeDas(item) {
+        var index = this.sizeForm.daslist.indexOf(item)
+        if (index !== -1) {
+          this.sizeForm.daslist.splice(index, 1)
+        }
+      },
       // 物模型提交
       submitFormwmx(sizeForm) {
+        var das = []
+        sizeForm.daslist.map((items) => {
+          var newval = items['addr']
+          das.push(newval)
+        })
         dgiotlog.log('sizeForm', sizeForm)
         var obj = {
           name: sizeForm.name,
@@ -1768,12 +1783,14 @@
                 precision: Number(sizeForm.precision),
                 unit: sizeForm.unit == '' ? '' : sizeForm.unit,
               },
+              das: das,
             },
           }
           Object.assign(obj, obj1)
         } else if (sizeForm.type == 'image') {
           obj1 = {
             dataType: {
+              das: das,
               type: sizeForm.type.toLowerCase(),
               imagevalue: sizeForm.imagevalue,
               specs: {},
@@ -1783,6 +1800,7 @@
         } else if (sizeForm.type == 'bool') {
           obj1 = {
             dataType: {
+              das: das,
               type: sizeForm.type.toLowerCase(),
               specs: {
                 0: sizeForm.false,
@@ -1799,6 +1817,7 @@
           })
           obj1 = {
             dataType: {
+              das: das,
               type: sizeForm.type.toLowerCase(),
               specs: specs,
             },
@@ -1807,6 +1826,7 @@
         } else if (sizeForm.type == 'struct') {
           obj1 = {
             dataType: {
+              das: das,
               type: sizeForm.type.toLowerCase(),
               specs: sizeForm.struct,
             },
@@ -1815,6 +1835,7 @@
         } else if (sizeForm.type == 'text') {
           obj1 = {
             dataType: {
+              das: das,
               type: sizeForm.type.toLowerCase(),
               size: sizeForm.string,
               specs: {},
@@ -1824,6 +1845,7 @@
         } else if (sizeForm.type == 'date') {
           obj1 = {
             dataType: {
+              das: das,
               type: sizeForm.type.toLowerCase(),
               specs: {},
             },
@@ -1832,6 +1854,7 @@
         } else if (sizeForm.type == 'geopoint') {
           obj1 = {
             dataType: {
+              das: das,
               type: sizeForm.type.toLowerCase(),
               gpstype: sizeForm.gpstype,
               specs: {},

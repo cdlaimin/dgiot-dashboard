@@ -209,7 +209,7 @@ export default {
       subordinatenode: '所处节点',
       deviceinformation: '设备信息',
       'historical data': '历史数据',
-      'real time data': '实时数据',
+      'realTime data': '实时数据',
       deviceextensioninformation: '设备扩展信息',
       realtimerefresh: '实时刷新',
       operationauthority: '操作权限',
@@ -1228,6 +1228,7 @@ export default {
       'Draggable column settings': '可拖拽列设置',
     },
     cloudTest: {
+      'add task': '添加任务',
       file: '文件',
       image: '图片',
       video: '视频',

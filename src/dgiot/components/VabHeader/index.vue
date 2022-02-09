@@ -29,13 +29,18 @@
               :title="$translateTitle(`home.department switch`)"
             />
             <vab-error-log :title="$translateTitle(`home.error log`)" />
-            <vab-search :title="$translateTitle(`home.search`)" />
             <vab-notice :title="$translateTitle(`home.notice`)" />
             <vab-full-screen :title="$translateTitle(`home.full screen`)" />
-            <vab-language :title="$translateTitle(`home.language`)" />
-            <vab-theme :title="$translateTitle(`home.theme`)" />
+            <vab-language
+              v-show="isShow"
+              :title="$translateTitle(`home.language`)"
+            />
+            <vab-theme v-show="isShow" :title="$translateTitle(`home.theme`)" />
             <vab-refresh :title="$translateTitle(`home.refresh`)" />
-            <vab-avatar :title="$translateTitle(`home.avatar`)" />
+            <vab-avatar
+              v-show="isShow"
+              :title="$translateTitle(`home.avatar`)"
+            />
           </div>
         </el-col>
       </el-row>
@@ -44,10 +49,11 @@
 </template>
 
 <script>
+  import { mapActions, mapGetters } from 'vuex'
+  import { CDN_URL, proxy, runTimeStatic } from '@/config'
+  import { loadScript } from '@/utils/file/load'
   import variables from '@/dgiot/styles/variables/variables.scss'
-  import { mapGetters } from 'vuex'
-  import { handleActivePath } from '@/utils/routes'
-
+  import { handleActivePath } from '@/utils/router/routes'
   export default {
     name: 'VabHeader',
     props: {
@@ -58,12 +64,19 @@
     },
     data() {
       return {
+        isShow: window.name != 'dgiot_iframe',
         activeMenu: '',
         menuTrigger: 'hover',
       }
     },
     computed: {
       ...mapGetters({
+        treeFlag: 'settings/treeFlag',
+        mqttName: 'user/username',
+        objectId: 'user/objectId',
+        extra: 'settings/extra',
+        token: 'user/token',
+        loginInfo: 'user/loginInfo',
         routes: 'routes/routes',
       }),
       variables() {
@@ -83,6 +96,96 @@
           this.activeMenu = handleActivePath(route)
         },
         immediate: true,
+      },
+    },
+    async mounted() {
+      await this.loadDgiotScript()
+      // 写在页面公共组件里。确保全局只订阅一个mqtt。刷新则再次重新订阅
+      const md5Info = {
+        token: md5(this.token),
+        username: this.mqttName,
+        password: md5(this.loginInfo.password),
+        router: md5(this.$route.fullPath),
+      }
+      console.groupCollapsed(
+        '%c md5Info',
+        'color:#009a61; font-size: 28px; font-weight: 300'
+      )
+      console.log(md5Info)
+      console.groupEnd()
+      await this.Mqtt(md5Info)
+    },
+    methods: {
+      ...mapActions({ setTreeFlag: 'settings/setTreeFlag' }),
+      /**
+       * @Author: dext7r
+       * @Date: 2021-12-30 14:56:41
+       * @LastEditors:
+       * @param
+       * @return {Promise<void>}
+       * @Description:
+       */
+      async loadDgiotScript() {
+        try {
+          const NODE_ENV =
+            process.env.NODE_ENV == 'development'
+              ? proxy[1].target + CDN_URL
+              : CDN_URL
+          console.info('NODE_ENV', NODE_ENV)
+          const staticUrl = NODE_ENV ? `${CDN_URL}/assets/` : '/assets/'
+          var _runTimeStatic = { js: [] }
+          const { js: runTimejs } = runTimeStatic
+          runTimejs.forEach((_js) => {
+            _runTimeStatic.js.push(`${staticUrl}js/${_js}`)
+            _runTimeStatic.js.push(`${staticUrl}css/amis/sdk/sdk.js`)
+          })
+          const res = await loadScript(_runTimeStatic.js)
+          this.$nextTick(async () => {
+            await this.setTreeFlag(!this.treeFlag)
+          })
+          await this.setTreeFlag(!this.treeFlag)
+          console.log(res, 'loadDgiotScript success')
+        } catch (error) {
+          console.error(error, 'loadDgiotScript error')
+        }
+      },
+      async Mqtt(md5Info) {
+        console.error('src/dgiot/components/VabHeader/index.vue', md5Info)
+        const { VUE_APP_URL, NODE_ENV } = process.env
+        const { hostname, protocol } = location
+        const ip =
+          NODE_ENV == 'development'
+            ? VUE_APP_URL.split('//')[1].split(':')[0]
+            : hostname.split(':')[0] // 修复代理带端口的问题
+        this.option = {
+          keepalive: 60,
+          clientId: 'dgiot_mqtt_' + md5(this.token),
+          ip,
+          isSSL: protocol === 'https:' ? true : false,
+          port: protocol == 'http:' ? 8083 : 8084,
+          userName: md5Info.username,
+          passWord: await dcodeIO.bcrypt.hash(
+            this.objectId + moment().format('YYYY:MM:DD'),
+            3
+          ),
+          connectTimeout: 10 * 1000,
+          router: md5Info.router,
+        }
+        console.groupCollapsed(
+          '%c option',
+          'color:#009a61; font-size: 28px; font-weight: 300'
+        )
+
+        console.log(this.option)
+        console.groupEnd()
+        await this.$dgiotBus.$emit('MqttConnect', this.option)
+        // this.$dgiotBus.$emit('MqttSubscribe', {
+        //   router: md5(this.$route.fullPath),
+        //   topic: 'h7ml/topic/test/1',
+        //   ttl: 1000 * 60 * 60 * 3,
+        //   created: Math.round(new Date() / 1000),
+        //   qos: 0,
+        // })
       },
     },
   }

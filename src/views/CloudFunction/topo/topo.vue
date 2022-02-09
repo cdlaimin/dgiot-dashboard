@@ -64,16 +64,16 @@
 </template>
 <script>
   import 'element-ui/lib/theme-chalk/display.css'
-  import { requireModule } from '@/utils/file'
+  import requiremodule from '@/utils/file/requiremodule'
   import { mapGetters, mapMutations } from 'vuex'
   import { isBase64, uuid } from '@/utils'
-  import { createState } from '@/utils/konva'
+  import createState from '@/utils/konva/createState'
   import { _getTopo } from '@/api/Topo'
   import { putProduct, queryProduct } from '@/api/Product'
 
   export default {
     components: {
-      ...requireModule(require.context('./components', true, /\.vue$/)),
+      ...requiremodule(require.context('./components', true, /\.vue$/)),
     },
     data() {
       return {
@@ -864,6 +864,8 @@
         )
         _this.subtopic = `thing/${_this.productid}/post`
         _this.topicKey = _this.$dgiotBus.topicKey(_this.router, _this.subtopic)
+        //
+        console.warn('订阅mqtt')
         // 订阅webscroket
         _this.$dgiotBus.$emit(`MqttSubscribe`, {
           router: this.router,

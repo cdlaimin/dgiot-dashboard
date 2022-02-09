@@ -1,6 +1,12 @@
 <!-- 物模型详情组件 -->
 <template>
   <div class="wmxheader">
+    <vab-input
+      ref="uploadFinish"
+      :params="inputParams"
+      @fileInfo="fileInfo"
+      @files="files"
+    />
     <el-form
       ref="sizeForm"
       label-position="left"
@@ -40,6 +46,7 @@
                     filterable
                     placeholder="请选择"
                     style="width: 100%"
+                    value-key="name"
                     @change="changeThing"
                   >
                     <el-option
@@ -118,15 +125,10 @@
               <el-col :span="12">
                 <el-form-item label="图标" prop="precision">
                   <el-avatar
+                    :key="sizeForm.ico"
                     :size="100"
                     :src="$FileServe + sizeForm.ico"
                     @click.native="uploadCkick('userinfo.avatar')"
-                  />
-                  <vab-input
-                    ref="uploadFinish"
-                    :params="inputParams"
-                    @fileInfo="fileInfo"
-                    @files="files"
                   />
                 </el-form-item>
               </el-col>
@@ -566,14 +568,6 @@
                       @current-change="wmxCurrentChange"
                       @size-change="wmxSizeChange"
                     />
-                    <!--                    <el-button-->
-                    <!--                      slot="reference"-->
-                    <!--                      style="text-align: center"-->
-                    <!--                      size="mini"-->
-                    <!--                    >-->
-                    <!--                      &lt;!&ndash; 添加变量 &ndash;&gt;-->
-                    <!--                      {{ $translateTitle('product.addvariable') }}-->
-                    <!--                    </el-button>-->
                   </el-popover>
                 </el-col>
               </el-row>
@@ -809,187 +803,7 @@
                 <!--type-->
               </el-col>
             </el-row>
-            <!-- <el-col :span="10">
-                <el-form-item label="修正偏移">
-                  <el-input v-model="sizeForm.offset" auto-complete="off" />
-                </el-form-item>
-              </el-col> -->
           </el-collapse-item>
-          <!--          <el-collapse-item name="3">-->
-          <!--            <template slot="title">-->
-          <!--              {{ $translateTitle('task.datacount') }}-->
-          <!--            </template>-->
-          <!--            <el-row :gutter="24">-->
-          <!--              <el-col :span="12">-->
-          <!--                <el-form-item label="是否统计">-->
-          <!--                  <el-select-->
-          <!--                    v-model="sizeForm.iscount"-->
-          <!--                    style="width: 100%"-->
-          <!--                    size="mini"-->
-          <!--                    filterable-->
-          <!--                    allow-create-->
-          <!--                    default-first-option-->
-          <!--                    placeholder="请选择"-->
-          <!--                  >-->
-          <!--                    <el-option label="否" value="0" />-->
-          <!--                    <el-option label="是" value="1" />-->
-          <!--                  </el-select>-->
-          <!--                </el-form-item>-->
-          <!--              </el-col>-->
-          <!--              <el-col :span="12">-->
-          <!--                <el-tooltip-->
-          <!--                  style="float: left"-->
-          <!--                  effect="dark"-->
-          <!--                  placement="right-start"-->
-          <!--                >-->
-          <!--                  <div slot="content">-->
-          <!--                    统计策略表达式 。-->
-          <!--                    <br />-->
-
-          <!--                    如：-->
-          <!--                    <br />-->
-
-          <!--                    5分钟 = 5 * 60-->
-          <!--                    <br />-->
-
-          <!--                    1小时 = 60 * 60-->
-          <!--                    <br />-->
-
-          <!--                    5小时 = 5 * 60 * 60-->
-          <!--                    <br />-->
-
-          <!--                    1天 = 24 * 60 * 60-->
-          <!--                    <br />-->
-          <!--                  </div>-->
-          <!--                  <i class="el-icon-question" />-->
-          <!--                </el-tooltip>-->
-          <!--                <el-form-item label="统计策略(单位：秒)">-->
-          <!--                  &lt;!&ndash; <el-input v-model="sizeForm.rate" auto-complete="off">   <template slot="append">秒</template>-->
-          <!--                  </el-input> &ndash;&gt;-->
-          <!--                  <el-select-->
-          <!--                    v-model="sizeForm.countstrategy"-->
-          <!--                    style="width: 95%"-->
-          <!--                    size="mini"-->
-          <!--                    filterable-->
-          <!--                    allow-create-->
-          <!--                    default-first-option-->
-          <!--                    placeholder="请选择"-->
-          <!--                  >-->
-          <!--                    <el-option-->
-          <!--                      v-for="item in countsizeOption"-->
-          <!--                      :key="item.val"-->
-          <!--                      :label="item.label"-->
-          <!--                      :value="item.val"-->
-          <!--                      size="mini"-->
-          <!--                    />-->
-          <!--                  </el-select>-->
-          <!--                </el-form-item>-->
-          <!--              </el-col>-->
-          <!--            </el-row>-->
-          <!--            <el-row :gutter="24">-->
-          <!--              <el-col :span="12">-->
-          <!--                <el-form-item label="统计轮次">-->
-          <!--                  &lt;!&ndash; <el-input v-model="sizeForm.rate" auto-complete="off">   <template slot="append">秒</template>-->
-          <!--                  </el-input> &ndash;&gt;-->
-          <!--                  <el-select-->
-          <!--                    v-model="sizeForm.countround"-->
-          <!--                    style="width: 100%"-->
-          <!--                    size="mini"-->
-          <!--                    filterable-->
-          <!--                    allow-create-->
-          <!--                    default-first-option-->
-          <!--                    placeholder="请选择生效轮次"-->
-          <!--                  >-->
-          <!--                    <el-option-->
-          <!--                      v-for="item in options"-->
-          <!--                      :key="item.value"-->
-          <!--                      :label="item.label"-->
-          <!--                      :value="item.value"-->
-          <!--                    />-->
-          <!--                  </el-select>-->
-          <!--                  <p-->
-          <!--                    style="-->
-          <!--                      position: absolute;-->
-          <!--                      top: 26px;-->
-          <!--                      margin: 0;-->
-          <!--                      font-size: 12px;-->
-          <!--                      color: black;-->
-          <!--                    "-->
-          <!--                  >-->
-          <!--                    例如:1,3,5,8;(可选可自主填写)(注意:逗号为英文逗号)-->
-          <!--                  </p>-->
-          <!--                </el-form-item>-->
-          <!--              </el-col>-->
-          <!--              <el-col :span="12">-->
-          <!--                <el-tooltip-->
-          <!--                  style="float: left"-->
-          <!--                  effect="dark"-->
-          <!--                  placement="right-start"-->
-          <!--                >-->
-          <!--                  <div slot="content">-->
-          <!--                    1. 采集值 设备上行数据经采集公式计算后显示 。-->
-          <!--                    <br />-->
-
-          <!--                    公式中的%s为占位符，是固定字段。-->
-          <!--                    <br />-->
-
-          <!--                    如：-->
-          <!--                    <br />-->
-
-          <!--                    加：%s+10-->
-          <!--                    <br />-->
-
-          <!--                    减：%s-10-->
-          <!--                    <br />-->
-
-          <!--                    乘：%s*10-->
-          <!--                    <br />-->
-
-          <!--                    除：%s/10-->
-          <!--                    <br />-->
-
-          <!--                    余数：%s%10-->
-          <!--                    <br />-->
-
-          <!--                    2. 计算值 添加变量按钮,-->
-          <!--                    <br />-->
-          <!--                    复制对应的标识符-->
-          <!--                    <br />-->
-
-          <!--                    例：pressure_out-->
-          <!--                    <br />-->
-          <!--                    加：pressure_out+10-->
-          <!--                    <br />-->
-
-          <!--                    减：pressure_out-10-->
-          <!--                    <br />-->
-
-          <!--                    乘：pressure_out*10-->
-          <!--                    <br />-->
-
-          <!--                    除：pressure_out/10-->
-          <!--                    <br />-->
-
-          <!--                    余数：pressure_out%10-->
-          <!--                    <br />-->
-
-          <!--                    3. 复杂值 ：关闭本弹窗后使用物解析处理-->
-          <!--                    <br />-->
-          <!--                  </div>-->
-          <!--                  <i class="el-icon-question" />-->
-          <!--                </el-tooltip>-->
-          <!--                <el-form-item label="统计公式">-->
-          <!--                  <el-input-->
-          <!--                    v-model="sizeForm.countcollection"-->
-          <!--                    style="width: 95%"-->
-          <!--                    :rows="1"-->
-          <!--                    type="textarea"-->
-          <!--                    placeholder="%s"-->
-          <!--                  />-->
-          <!--                </el-form-item>-->
-          <!--              </el-col>-->
-          <!--            </el-row>-->
-          <!--          </el-collapse-item>-->
           <el-collapse-item name="4">
             <template slot="title">数据来源</template>
             <el-row :gutter="24">
@@ -1003,6 +817,7 @@
                     <el-option
                       v-for="(item, index) in [
                         'normal',
+                        'opc',
                         'modbus',
                         'DLT645',
                         'xinchuangwei',
@@ -1043,6 +858,43 @@
                       :value="item.value"
                     />
                   </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row v-show="sizeForm.protocol == 'opc'" :gutter="24">
+              <el-col :span="24">
+                <el-form-item label="数据地址集">
+                  <el-link
+                    icon="el-icon-plus"
+                    type="primary"
+                    :underline="false"
+                    @click="addDas"
+                  >
+                    {{ $translateTitle('product.add') }}
+                  </el-link>
+                  <el-table
+                    :data="sizeForm.daslist"
+                    style="width: 100%; text-align: center"
+                  >
+                    <el-table-column align="center" label="数据地址">
+                      <template #default="{ row }">
+                        <el-input v-model="row.addr" />
+                      </template>
+                    </el-table-column>
+                    <el-table-column align="center" label="操作">
+                      <template #default="{ row }">
+                        <el-button
+                          plain
+                          size="mini"
+                          title="删除"
+                          type="danger"
+                          @click.native="removeDas(row)"
+                        >
+                          删除
+                        </el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -1136,7 +988,12 @@
                 </template>
               </el-table-column>
             </el-table>
-            <el-row v-show="sizeForm.protocol != 'modbus'" :gutter="24">
+            <el-row
+              v-show="
+                sizeForm.protocol != 'modbus' && sizeForm.protocol != 'opc'
+              "
+              :gutter="24"
+            >
               <el-col :span="12">
                 <el-form-item label="数据地址">
                   <el-input v-model="sizeForm.dis" placeholder="数据地址" />
@@ -1425,8 +1282,9 @@
         dgiotlog.log(type)
       },
       fileInfo(info) {
-        dgiotlog.error('========================', info)
+        dgiotlog.log('========================', info)
         this.sizeForm.ico = info.path
+        console.log('========================path', this.sizeForm.ico)
       },
       uploadCkick(type) {
         this.upNodeType = type
@@ -1454,9 +1312,16 @@
       }),
       changeThing(item) {
         let that = this
-        dgiotlog.log('this.sizeFormaaa', that.$refs.sizeForm.model.name)
-        dgiotlog.log('item', item)
+        console.log('this.sizeFormaaa', that.$refs.sizeForm.model.name)
+        console.log('item', item)
+        that.$dgiotBus.$emit('thingType', 'put')
         var obj = {}
+        var daslist = []
+        item.dataType.das.forEach((val) => {
+          daslist.push({
+            addr: val,
+          })
+        })
         // 提交之前需要先判断类型
         if (
           ['float', 'double', 'int', 'long'].indexOf(item.dataType.type) != -1
@@ -1467,6 +1332,7 @@
             ico: item.ico,
             // item.dataType
             type: item.dataType.type,
+            daslist: daslist,
             endnumber: that.$objGet(item, 'dataType.specs.max'),
             startnumber: that.$objGet(item, 'dataType.specs.min'),
             step: that.$objGet(item, 'dataType.specs.step'),
@@ -1505,6 +1371,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             imagevalue: item.dataType.imagevalue,
             true: item.dataType.specs[1],
             false: item.dataType.specs[0],
@@ -1540,6 +1407,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             true: item.dataType.specs[1],
             false: item.dataType.specs[0],
             // item.dataForm.
@@ -1581,6 +1449,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             specs: item.dataType.specs,
             struct: structArray,
             startnumber: that.$objGet(item, 'dataType.specs.min'),
@@ -1614,6 +1483,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             struct: item.dataType.specs,
             startnumber: that.$objGet(item, 'dataType.specs.min'),
             step: that.$objGet(item, 'dataType.specs.step'),
@@ -1646,6 +1516,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             collection:
               item.dataForm == undefined ? '' : item.dataForm.collection,
             control: item.dataForm == undefined ? '' : item.dataForm.control,
@@ -1678,6 +1549,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             collection:
               item.dataForm == undefined ? '' : item.dataForm.collection,
             control: item.dataForm == undefined ? '' : item.dataForm.control,
@@ -1709,6 +1581,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             collection:
               item.dataForm == undefined ? '' : item.dataForm.collection,
             control: item.dataForm == undefined ? '' : item.dataForm.control,
@@ -1740,6 +1613,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             collection:
               item.dataForm == undefined ? '' : item.dataForm.collection,
             control: item.dataForm == undefined ? '' : item.dataForm.control,
@@ -1771,6 +1645,7 @@
             devicetype: item.devicetype,
             ico: item.ico,
             type: item.dataType.type,
+            daslist: daslist,
             gpstype: item.dataType.gpstype,
             collection:
               item.dataForm == undefined ? '' : item.dataForm.collection,
@@ -1829,6 +1704,12 @@
       addDomain() {
         this.$emit('addDomain')
       },
+      addDas() {
+        this.$emit('addDas')
+      },
+      removeDas(item) {
+        this.$emit('removeDas', item)
+      },
       wmxhandleClose() {
         this.$emit('wmxhandleClose')
       },
@@ -1843,8 +1724,146 @@
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            dgiotlog.log(this.sizeForm, 'dsaf')
-            this.$emit('submitForm', this.sizeForm)
+            var sizeForm = this.sizeForm
+            var das = []
+            sizeForm.daslist.map((items) => {
+              var newval = items['addr']
+              das.push(newval)
+            })
+            var obj = {
+              name: sizeForm.name,
+              devicetype: sizeForm.devicetype,
+              dataForm: {
+                round: sizeForm.round,
+                data: sizeForm.dinumber,
+                address: sizeForm.dis,
+                rate: sizeForm.rate,
+                offset: sizeForm.offset,
+                order: sizeForm.order,
+                protocol: sizeForm.protocol,
+                operatetype: sizeForm.operatetype,
+                originaltype: sizeForm.originaltype,
+                slaveid: sizeForm.slaveid,
+                collection: sizeForm.collection,
+                control: sizeForm.control,
+                strategy: sizeForm.strategy,
+                iscount: sizeForm.iscount,
+                countstrategy: sizeForm.countstrategy,
+                countround: sizeForm.countround,
+                countcollection: sizeForm.countcollection,
+              },
+              ico: sizeForm.ico,
+              required: true,
+              accessMode: sizeForm.isread,
+              isshow: sizeForm.isshow,
+              identifier: sizeForm.identifier,
+            }
+            // 提交之前需要先判断类型
+            if (
+              sizeForm.type == 'float' ||
+              sizeForm.type == 'double' ||
+              sizeForm.type == 'int' ||
+              sizeForm.type == 'long'
+            ) {
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  specs: {
+                    max: sizeForm.endnumber,
+                    min: sizeForm.startnumber,
+                    step: sizeForm.step,
+                    precision: Number(sizeForm.precision),
+                    unit: sizeForm.unit == '' ? '' : sizeForm.unit,
+                  },
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            } else if (sizeForm.type == 'image') {
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  imagevalue: sizeForm.imagevalue,
+                  specs: {},
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            } else if (sizeForm.type == 'bool') {
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  specs: {
+                    0: sizeForm.false,
+                    1: sizeForm.true,
+                  },
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            } else if (sizeForm.type == 'enum') {
+              var specs = {}
+              sizeForm.struct.map((items) => {
+                var newkey = items['attribute']
+                specs[newkey] = items['attributevalue']
+              })
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  specs: specs,
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            } else if (sizeForm.type == 'struct') {
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  specs: sizeForm.struct,
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            } else if (sizeForm.type == 'string') {
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  size: sizeForm.string,
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            } else if (sizeForm.type == 'text') {
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  size: sizeForm.string,
+                  specs: {},
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            } else if (sizeForm.type == 'date') {
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            } else if (sizeForm.type == 'geopoint') {
+              var obj1 = {
+                dataType: {
+                  type: sizeForm.type.toLowerCase(),
+                  gpstype: sizeForm.gpstype,
+                  specs: {},
+                  das: das,
+                },
+              }
+              Object.assign(obj, obj1)
+            }
+            delete obj.index
+            this.$emit('submitForm', obj)
             // this.$refs[formName].resetFields()
           } else {
             dgiotlog.log(valid)

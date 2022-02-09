@@ -55,12 +55,10 @@
         `%c amis logs`,
         'color:#009a61; font-size: 28px; font-weight: 300'
       )
-      dgiotlog.info('ReactDOM', ReactDOM)
-      dgiotlog.info('code', this.schema)
-      dgiotlog.info(
-        'edit ： https://aisuda.github.io/amis-editor-demo/#/edit/0'
-      )
-      dgiotlog.info(
+      console.info('ReactDOM', ReactDOM)
+      console.info('code', this.schema)
+      console.info('edit ： https://aisuda.github.io/amis-editor-demo/#/edit/0')
+      console.info(
         'demo ： https://baidu.gitee.io/amis/zh-CN/docs/concepts/schema?page=1'
       )
       console.groupEnd()
@@ -122,7 +120,7 @@
             })
             if (method === 'get' && data) {
               config.params = data
-              dgiotlog.log('请求参数', config, config.data, data)
+              console.log('请求参数', config, config.data, data)
             } else if (data && data instanceof FormData) {
               // config.headers = config.headers || {};
               config.headers['Content-Type'] = 'multipart/form-data'
@@ -141,17 +139,26 @@
               `%c amis axios logs`,
               'color:#009a61; font-size: 28px; font-weight: 300'
             )
-            dgiotlog.info('config', config)
-            dgiotlog.info('data', config.data)
-            return axios(url, config)
+            console.info('config', config)
+            console.info('data', config.data)
+            // return axios(url, config)
+            // topo: fix https://gitee.com/dgiiot/dgiot/issues/I4RRY3
+            // 处理静态资源部署在在二级下页面下,但是页面
+            console.info('url', url)
+            // 零时解决
+            // 将/lite /dev 替换为空
+            return axios(
+              url.replace('/lite/', '/').replace('/dev/', '/'),
+              config
+            )
           },
           isCancel: (e) => axios.isCancel(e),
           alert,
           notify: (type, msg) => {
             toast[type]
               ? toast[type](msg, type === 'error' ? '系统错误' : '系统消息')
-              : dgiotlog.warn('[Notify]', type, msg)
-            dgiotlog.log('[notify]', type, msg)
+              : console.warn('[Notify]', type, msg)
+            console.log('[notify]', type, msg)
           },
           confirm,
           copy: (contents, options = {}) => {
@@ -188,7 +195,7 @@
           `%c amis render logs`,
           'color:#009a61; font-size: 28px; font-weight: 300'
         )
-        dgiotlog.info(res)
+        console.info(res)
         console.groupEnd()
       },
       updateRoute(location, replace) {
@@ -243,7 +250,7 @@
     schema: {
       amisJson: {
         handler(val) {
-          dgiotlog.log(val)
+          console.log(val)
           this.amisKey = moment(new Date()).format('X') + 'j'
         },
         immediate: true,

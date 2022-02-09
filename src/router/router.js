@@ -5,3 +5,8 @@
  */
 const router = require('./router.json')
 export default router.results
+const routerArr = require('./parse_router.json')
+// let routerId = []
+routerArr.results.map((e) => {
+  return e.objectId
+})

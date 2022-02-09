@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@/utils/request/request'
 
 export async function _getTopo(params) {
   return request({

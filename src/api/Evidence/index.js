@@ -13,8 +13,8 @@ import {
   get_object,
   query_object,
   update_object,
-} from '@/api/shuwa_parse'
-import request from '@/utils/request'
+} from '@/api/Parse'
+import request from '@/utils/request/request'
 export async function queryEvidence(params) {
   return query_object('Evidence', params)
 }
@@ -56,7 +56,7 @@ export async function postEvidence(id, params) {
 }
 
 /**
- * @doc-api http://pump.dgiotcloud.com/dgiot_swagger/#/Evidence/post_generatereport
+ * @doc-api http://prod.iotn2n.com/dgiot_swagger/#/Evidence/post_generatereport
  * @param params
  * @return {Promise<*|ElMessageComponent>}
  */
@@ -64,5 +64,19 @@ export async function generatereport(id) {
   return request({
     url: `generatereport?id=${id}`,
     method: 'post',
+  })
+}
+
+/**
+ * @doc-api http://prod.iotn2n.com/dgiot_swagger/#/Evidence/post_drawxnqx
+ * @param params
+ * @return {Promise<*|ElMessageComponent>}
+ * @description 生成性能曲线图
+ */
+export async function postDrawxnqx(params) {
+  return request({
+    url: 'drawxnqx',
+    method: 'post',
+    data: params,
   })
 }

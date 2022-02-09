@@ -1,12 +1,13 @@
 import i18n from '@/i18n'
-import Bus from './eventBus'
+import Bus from '@/utils/vue/eventBus'
 import dgiotBus from '@dgiot/dgiot-mqtt-dashboard/src/utils/bus'
 import dgiotMixin from '@dgiot/dgiot-mqtt-dashboard/src/mixins/mqtt'
-import { getToken, removeToken, setToken } from './vuex'
-import globalConfig from './globalConfig'
+import { getToken, removeToken, setToken } from './vue'
+import globalConfig from '@/utils/config/globalConfig'
 import store from '@/store'
 import { Message } from 'element-ui'
-import dgiotlog from './dgiotlog'
+import dgiotlog from '@/utils/dgiotLog/index'
+import dgiotConsole from '@/utils/dgiotLog/console'
 import {
   create_object,
   del_object,
@@ -15,7 +16,7 @@ import {
   query_object_header,
   shuwa_batch,
   update_object,
-} from '@/api/shuwa_parse'
+} from '@/api/Parse'
 import {
   delDict,
   getBatchNumer,
@@ -39,7 +40,7 @@ import { getMqttEventId, getTopicEventId } from '@/utils'
  * @param option
  * @returns {*}
  */
-import o2Log from './o2Console'
+import o2Log from '@/utils/dgiotLog/o2Console'
 
 const { CDN_URL } = require('../config')
 
@@ -160,7 +161,7 @@ export function aclObj(roles) {
   if (!roles) return
   let aclObj = {}
   roles.map((e) => {
-    dgiotlog.log(e.name, '')
+    console.log(e.name, '')
     aclObj[`${'role' + ':' + e.name}`] = {
       read: true,
       write: true,
@@ -265,7 +266,7 @@ function downBinary(res) {
   if (!res) return false
   const { data, headers } = res
   let blob = new Blob([data], { type: headers['content-type'] }) // 这里标识下载文件类型
-  dgiotlog.log(blob, res.data)
+  console.log(blob, res.data)
   let downloadElement = document.createElement('a')
   let href = window.URL.createObjectURL(blob) // 创建下载的链接
   downloadElement.href = href
@@ -534,5 +535,6 @@ export default {
     Vue.prototype.$downBinary = downBinary
     Vue.prototype.$FileServe = Cookies.get('fileServer')
     Vue.prototype.$dgiotlog = dgiotlog
+    Vue.prototype.$dgiotConsole = dgiotConsole
   },
 }

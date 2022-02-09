@@ -9,7 +9,60 @@
 -->
 <template>
   <el-container class="evidence">
-    <el-dialog append-to-body :visible.sync="auditDialog">
+    <el-drawer
+      v-drawerDrag
+      append-to-body
+      placement="right"
+      size="50%"
+      :visible="auditDialog"
+      :with-header="false"
+      :wrapper-closable="true"
+      @close="auditDialog = false"
+    >
+      <vab-query-form style="margin: 10px 20px">
+        <el-form ref="form" label-width="120px" :model="task">
+          <el-form-item
+            v-if="taskType == 'review'"
+            label-width="0"
+            style="float: left"
+          >
+            <el-button
+              type="primary"
+              @click="
+                finishEvidence(task, Number($route.query.step) == 1 ? 2 : 3)
+              "
+            >
+              提交审核
+            </el-button>
+          </el-form-item>
+          <el-form-item
+            v-if="taskType == 'evidence'"
+            label-width="0"
+            style="float: left"
+          >
+            <el-button @click="notapproved(task, -1)">
+              {{ $translateTitle('cloudTest.notapproved') }}
+            </el-button>
+            <el-button type="primary" @click="notapproved(task, 3)">
+              {{ $translateTitle('cloudTest.Approved') }}
+            </el-button>
+          </el-form-item>
+          <el-form-item
+            v-if="Number($route.query.step) != 1"
+            :label="$translateTitle('cloudTest.report audit opinion')"
+          >
+            <el-input
+              v-model="task.profile.message"
+              :rows="2"
+              style="width: 60%"
+              type="textarea"
+            />
+            <!--            <el-button title="关闭" type="info" @click.native="clouseDraw">-->
+            <!--              关闭-->
+            <!--            </el-button>-->
+          </el-form-item>
+        </el-form>
+      </vab-query-form>
       <span>
         <el-table border :data="auditList" size="mini" stripe>
           <el-table-column
@@ -26,49 +79,96 @@
           <el-table-column
             align="center"
             :label="$translateTitle('cloudTest.evidence')"
-            prop="original.path"
+            prop="row.original.path"
+            show-overflow-tooltip
+            sortable
             width="auto"
           >
             <template #default="{ row }">
-              <vue-aliplayer-v2
-                v-if="types.video.includes(`${row.original.type}`)"
-                :autoplay="false"
-                height="290"
-                :source="$FileServe + row.original.path"
-                width="290"
-              />
-              <el-image
-                v-else-if="types.image.includes(`${row.original.type}`)"
-                :preview-src-list="[$FileServe + row.original.path]"
-                :src="$FileServe + row.original.path"
-                style="width: 100px; height: 100px"
-              />
-              <av-bars
-                v-else-if="types.audio.includes(`${row.original.type}`)"
-                :audio-src="$FileServe + row.original.path"
-              />
-              <el-link
-                v-else-if="types.file.includes(`${row.original.type}`)"
-                :href="$FileServe + row.original.path"
-              >
-                {{ $FileServe + row.original.path }}
+              <!--              <vue-aliplayer-v2-->
+              <!--                v-if="types.video.includes(`${row.original.type}`)"-->
+              <!--                ref="VueAliplayerV2"-->
+              <!--                :options="options"-->
+              <!--                :source="$FileServe + row.original.path"-->
+              <!--                style="margin: 0 auto"-->
+              <!--              />-->
+              <!--              <el-image-->
+              <!--                v-else-if="types.image.includes(`${row.original.type}`)"-->
+              <!--                :preview-src-list="[$FileServe + row.original.path]"-->
+              <!--                :src="$FileServe + row.original.path"-->
+              <!--                style="width: 50px; height: 50px"-->
+              <!--              />-->
+              <!--              <av-bars-->
+              <!--                v-else-if="types.audio.includes(`${row.original.type}`)"-->
+              <!--                :audio-src="$FileServe + row.original.path"-->
+              <!--              />-->
+              <el-link :href="$FileServe + row.original.path" target="_blank">
+                {{
+                  row.original.path.split('/')[
+                    `${row.original.path.split('/').length - 1}`
+                  ]
+                }}
               </el-link>
             </template>
           </el-table-column>
           <el-table-column
             align="center"
-            :label="$translateTitle('developer.filepath')"
-            prop="original.path"
+            :label="$translateTitle('deviceLog.type')"
+            prop="row.original.type"
             show-overflow-tooltip
+            sortable
             width="auto"
           >
             <template #default="{ row }">
-              <el-link :href="$FileServe + row.original.path" type="success">
-                {{ row.original.path }}
-              </el-link>
+              <el-tag effect="plain">
+                {{ $translateTitle(`cloudTest.${row.original.type}`) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            :label="$translateTitle('user.Remarks')"
+            prop="row.original.remarks"
+            sortable
+            width="auto"
+          >
+            <template #default="{ row }">
+              <el-input
+                v-model="row.original.remarks"
+                :readonly="Number($route.query.step) > 2"
+                :rows="2"
+                type="textarea"
+              />
             </template>
           </el-table-column>
 
+          <el-table-column
+            v-if="Number($route.query.step) == 1"
+            align="center"
+            :label="
+              Number($route.query.step) == 1
+                ? $translateTitle('concentrator.operation')
+                : $translateTitle('cloudTest.single audit')
+            "
+            :width="Number($route.query.step) == 1 ? '220' : '420'"
+          >
+            <template #default="{ row, $index }">
+              <el-button
+                sizes="mini"
+                type="danger"
+                @click.native="deleteFile(row.objectId, $index, evidences)"
+              >
+                {{ $translateTitle('cloudTest.delete') }}
+              </el-button>
+              <el-button
+                sizes="mini"
+                type="success"
+                @click.native="saveEvidences(row.objectId, $index, row)"
+              >
+                {{ $translateTitle('konva.save') }}
+              </el-button>
+            </template>
+          </el-table-column>
           <el-table-column
             v-if="taskType != 'review'"
             align="center"
@@ -100,212 +200,228 @@
             :label="$translateTitle('cloudTest.single audit opinion')"
             prop="original.message"
             show-overflow-tooltip
-          />
-        </el-table>
-        <el-form
-          v-if="taskType != 'review'"
-          ref="form"
-          label-width="120px"
-          :model="task"
-        >
-          <el-form-item
-            :label="$translateTitle('cloudTest.report audit opinion')"
-          >
-            <el-input v-model="task.profile.message" />
-          </el-form-item>
-        </el-form>
-      </span>
-      <span slot="footer" class="dialog-footer">
-        <div v-if="taskType == 'review'">
-          <el-button
-            type="primary"
-            @click="
-              finishEvidence(task, Number($route.query.step) == 1 ? 2 : 3)
-            "
-          >
-            {{ $translateTitle('cloudTest.submit review') }}
-          </el-button>
-        </div>
-        <div v-if="taskType == 'evidence'">
-          <el-button @click="notapproved(task, -1)">
-            {{ $translateTitle('cloudTest.notapproved') }}
-          </el-button>
-          <el-button type="primary" @click="notapproved(task, 3)">
-            {{ $translateTitle('cloudTest.Approved') }}
-          </el-button>
-        </div>
-      </span>
-    </el-dialog>
-    <el-dialog append-to-body :visible.sync="evidenceDialog">
-      <el-card class="box-card" shadow="hover">
-        <div
-          v-if="evidenceList.id"
-          v-show="Number($route.query.step) == 1"
-          slot="header"
-          class="clearfix"
-        >
-          <i class="material-icons" :title="evidenceList.node.attrs.icon">
-            {{ evidenceList.node.attrs.icon }}
-          </i>
-          <i
-            class="el-icon-upload"
-            style="
-              float: right;
-              padding: 3px 0;
-              font-size: 46px;
-              cursor: pointer;
-            "
-            title="取证"
-            @click="$refs.uploader.click()"
-          />
-          <input
-            ref="uploader"
-            accept="*"
-            style="display: none"
-            type="file"
-            @change="doUpload($event, evidenceList.node.attrs.icon)"
-          />
-        </div>
-        <el-table border :data="evidences" stripe>
-          <el-table-column
-            align="center"
-            :label="$translateTitle('cloudTest.number')"
-            show-overflow-tooltip
-            width="100"
-          >
-            <template #default="{ $index }">
-              {{ $index + 1 }}
-            </template>
-          </el-table-column>
-          <el-table-column
-            align="center"
-            :label="$translateTitle('cloudTest.evidence')"
-            show-overflow-tooltip
-            width="auto"
           >
             <template #default="{ row }">
-              <vue-aliplayer-v2
-                v-if="types.video.includes(`${row.original.type}`)"
-                :autoplay="false"
-                height="290"
-                :source="$FileServe + row.original.path"
-                width="290"
+              <el-input
+                v-model="row.original.message"
+                :rows="2"
+                type="textarea"
               />
-              <el-image
-                v-else-if="types.image.includes(`${row.original.type}`)"
-                :preview-src-list="[$FileServe + row.original.path]"
-                :src="$FileServe + row.original.path"
-                style="width: 100px; height: 100px"
-              />
-              <av-bars
-                v-else-if="types.audio.includes(`${row.original.type}`)"
-                :audio-src="$FileServe + row.original.path"
-              />
-              <el-link
-                v-else-if="types.file.includes(`${row.original.type}`)"
-                :href="$FileServe + row.original.path"
-              >
-                {{ $FileServe + row.original.path }}
-              </el-link>
-            </template>
-          </el-table-column>
-          <el-table-column
-            align="center"
-            :label="$translateTitle('deviceLog.type')"
-            prop="row.original.type"
-            show-overflow-tooltip
-            sortable
-            :width="120"
-          >
-            <template #default="{ row }">
-              <el-tag effect="plain">
-                {{ $translateTitle(`cloudTest.${row.original.type}`) }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column
-            align="center"
-            :label="
-              Number($route.query.step) == 1
-                ? $translateTitle('concentrator.operation')
-                : $translateTitle('cloudTest.single audit')
-            "
-            :width="Number($route.query.step) == 1 ? '120' : '320'"
-          >
-            <template #default="{ row, $index }">
-              <el-button
-                v-if="Number($route.query.step) == 1"
-                sizes="mini"
-                type="danger"
-                @click.native="deleteFile(row.objectId, $index, evidences)"
-              >
-                {{ $translateTitle('cloudTest.delete') }}
-              </el-button>
-              <el-radio-group
-                v-if="
-                  Number($route.query.step) > 1 &&
-                  Number($route.query.step) != 4
-                "
-                v-model="row.original.status"
-                size="mini"
-              >
-                <el-radio label="未审核">
-                  {{ $translateTitle('cloudTest.Unreviewed') }}
-                </el-radio>
-                <el-radio label="通过审核">
-                  {{ $translateTitle('cloudTest.Approved') }}
-                </el-radio>
-                <el-radio label="不通过审核">
-                  {{ $translateTitle('cloudTest.notapproved') }}
-                </el-radio>
-              </el-radio-group>
-
-              <el-tag
-                v-else
-                effect="dark"
-                :type="
-                  ['', 'success', 'danger'][
-                    ['未审核', '通过审核', '不通过审核'].indexOf(
-                      row.original.status
-                    )
-                  ]
-                "
-              >
-                {{ row.original.status }}
-              </el-tag>
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            v-if="Number($route.query.step) == 3"
-            align="center"
-            :label="$translateTitle('cloudTest.single audit opinion')"
-            width="auto"
-          >
-            <template #default="{ row, $index }">
-              <el-input v-model="row.original.message" size="mini" />
-            </template>
-          </el-table-column>
-          <el-table-column
-            v-if="Number($route.query.step) == 3"
-            align="center"
-            :label="$translateTitle('cloudTest.submit review')"
-            width="auto"
-          >
-            <template #default="{ row }">
-              <el-button plain @click.native="changeItem(row)">
-                {{ $translateTitle('cloudTest.submit review') }}
-              </el-button>
             </template>
           </el-table-column>
         </el-table>
-      </el-card>
+      </span>
+    </el-drawer>
+    <el-drawer
+      v-drawerDrag
+      append-to-body
+      size="60%"
+      :visible="evidenceDialog"
+      :with-header="false"
+      :wrapper-closable="false"
+      @close="evidenceDialog = false"
+    >
+      <div>
+        <vab-query-form style="margin: 10px 20px">
+          <vab-query-form-left-panel
+            v-if="evidenceList.id"
+            v-show="Number($route.query.step) == 1"
+          >
+            <el-button
+              class="el-icon-upload"
+              title="取证"
+              type="primary"
+              @click.native="$refs.uploader.click()"
+            >
+              上传
+            </el-button>
+          </vab-query-form-left-panel>
+          <vab-query-form-right-panel style="float: right">
+            <el-button title="关闭" type="info" @click.native="clouseDraw">
+              关闭
+            </el-button>
+          </vab-query-form-right-panel>
+        </vab-query-form>
+
+        <input
+          ref="uploader"
+          accept="*"
+          style="display: none"
+          type="file"
+          @change="doUpload($event, evidenceList.node.attrs.icon)"
+        />
+      </div>
+      <el-table border :data="evidences" stripe>
+        <el-table-column
+          align="center"
+          :label="$translateTitle('cloudTest.number')"
+          show-overflow-tooltip
+          width="100"
+        >
+          <template #default="{ $index }">
+            {{ $index + 1 }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          :label="$translateTitle('cloudTest.evidence')"
+          prop="row.original.path"
+          show-overflow-tooltip
+          sortable
+          width="auto"
+        >
+          <template #default="{ row }">
+            <!--            <vue-aliplayer-v2-->
+            <!--              v-if="types.video.includes(`${row.original.type}`)"-->
+            <!--              ref="VueAliplayerV2"-->
+            <!--              :options="options"-->
+            <!--              :source="$FileServe + row.original.path"-->
+            <!--            />-->
+            <!--            <el-image-->
+            <!--              v-else-if="types.image.includes(`${row.original.type}`)"-->
+            <!--              :preview-src-list="[$FileServe + row.original.path]"-->
+            <!--              :src="$FileServe + row.original.path"-->
+            <!--              style="width: 50px; height: 50px"-->
+            <!--            />-->
+            <!--            <av-bars-->
+            <!--              v-else-if="types.audio.includes(`${row.original.type}`)"-->
+            <!--              :audio-src="$FileServe + row.original.path"-->
+            <!--            />-->
+            <el-link :href="$FileServe + row.original.path" target="_blank">
+              {{
+                row.original.path.split('/')[
+                  `${row.original.path.split('/').length - 1}`
+                ]
+              }}
+            </el-link>
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          :label="$translateTitle('user.Remarks')"
+          prop="row.original.remarks"
+          sortable
+          width="auto"
+        >
+          <template #default="{ row }">
+            <el-input
+              v-model="row.original.remarks"
+              :rows="2"
+              type="textarea"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          :label="$translateTitle('deviceLog.type')"
+          prop="row.original.type"
+          show-overflow-tooltip
+          sortable
+          width="auto"
+        >
+          <template #default="{ row }">
+            <el-tag effect="plain">
+              {{ $translateTitle(`cloudTest.${row.original.type}`) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="center"
+          :label="
+            Number($route.query.step) == 1
+              ? $translateTitle('concentrator.operation')
+              : $translateTitle('cloudTest.single audit')
+          "
+          :width="Number($route.query.step) == 1 ? '220' : '420'"
+        >
+          <template #default="{ row, $index }">
+            <el-button
+              v-if="Number($route.query.step) == 1"
+              sizes="mini"
+              type="danger"
+              @click.native="deleteFile(row.objectId, $index, evidences)"
+            >
+              {{ $translateTitle('cloudTest.delete') }}
+            </el-button>
+            <el-button
+              v-if="Number($route.query.step) == 1"
+              sizes="mini"
+              type="success"
+              @click.native="saveEvidences(row.objectId, $index, row)"
+            >
+              {{ $translateTitle('konva.save') }}
+            </el-button>
+            <el-radio-group
+              v-if="
+                Number($route.query.step) !== 1 &&
+                Number($route.query.step) != 4
+              "
+              v-model="row.original.status"
+              size="mini"
+            >
+              <el-radio label="未审核">
+                {{ $translateTitle('cloudTest.Unreviewed') }}
+              </el-radio>
+              <el-radio label="通过审核">
+                {{ $translateTitle('cloudTest.Approved') }}
+              </el-radio>
+              <el-radio label="不通过审核">
+                {{ $translateTitle('cloudTest.notapproved') }}
+              </el-radio>
+            </el-radio-group>
+
+            <el-tag
+              v-if="
+                Number($route.query.step) !== 1 &&
+                Number($route.query.step) != 3
+              "
+              effect="dark"
+              :type="
+                ['', 'success', 'danger'][
+                  ['未审核', '通过审核', '不通过审核'].indexOf(
+                    row.original.status
+                  )
+                ]
+              "
+            >
+              {{ row.original.status }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          v-if="Number($route.query.step) == 3"
+          align="center"
+          :label="$translateTitle('cloudTest.single audit opinion')"
+          width="auto"
+        >
+          <template #default="{ row, $index }">
+            <el-input
+              v-model="row.original.message"
+              size="mini"
+              type="textarea"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-if="Number($route.query.step) == 3"
+          align="center"
+          :label="$translateTitle('application.submit')"
+          width="auto"
+        >
+          <template #default="{ row }">
+            <el-button plain @click.native="changeItem(row)">
+              {{ $translateTitle('application.submit') }}
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
       <!--      <span slot="footer" class="dialog-footer">-->
       <!--        <el-button type="primary" @click="evidenceDialog = false">-->
       <!--          {{ $translateTitle('cloudTest.save evidence') }}-->
       <!--        </el-button>-->
       <!--      </span>-->
-    </el-dialog>
+    </el-drawer>
     <el-header class="evidence_header">
       <el-row class="evidence_header_row" :gutter="24">
         <el-col :lg="1" :md="1" :sm="1" title="检测详情" :xl="1" :xs="1">
@@ -351,22 +467,6 @@
             </el-tooltip>
           </p>
         </el-col>
-        <!--        <el-col :lg="2" :md="2" :sm="2" :xl="1" :xs="2">-->
-        <!--          <el-button size="mini" type="success">-->
-        <!--            {{ role[0].org_type }}-->
-        <!--          </el-button>-->
-        <!--        </el-col>-->
-        <el-col :lg="1" :md="1" :sm="1" title="检测列表" :xl="1" :xs="1">
-          <el-button
-            v-show="!$route.query.disable"
-            round
-            size="mini"
-            type="success"
-            @click.native="taskFlag = !taskFlag"
-          >
-            <dgiot-icon color="red" icon="file-list-line" />
-          </el-button>
-        </el-col>
       </el-row>
     </el-header>
     <el-container
@@ -396,96 +496,6 @@
       <el-main class="evidence_main">
         <div id="konva" class="evidence_main_konva"></div>
       </el-main>
-      <transition name="el-fade-in-linear">
-        <el-aside
-          v-show="taskFlag"
-          style="
-            width: 400px !important;
-            background: #fff;
-            height: 100vh;
-            overflow: scroll;
-          "
-        >
-          <div
-            v-for="(item, index) in taskList"
-            :key="item.objectId"
-            :style="{ height: scrollerHeight }"
-          >
-            <el-card
-              :shadow="
-                $route.query.taskid == item.objectId ? 'always' : 'hover'
-              "
-              style="cursor: pointer"
-              @click.native="headerTask(item, index)"
-            >
-              <el-descriptions
-                border
-                :column="2"
-                direction="vertical"
-                size="medium"
-              >
-                <el-descriptions-item label="检测任务">
-                  <el-tag
-                    :type="
-                      $route.query.taskid == item.objectId ? 'success' : 'info'
-                    "
-                  >
-                    {{ item.name }}
-                  </el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="检测进度">
-                  <el-tag
-                    v-if="item.profile.step == -1"
-                    effect="dark"
-                    type="warning"
-                  >
-                    {{ $translateTitle('cloudTest.notapproved') }}
-                  </el-tag>
-                  <el-tag
-                    v-if="item.profile.step != -1"
-                    effect="dark"
-                    :type="
-                      ['info', 'warning', 'primary', 'primary'][
-                        item.profile.step ? item.profile.step : 0
-                      ]
-                    "
-                  >
-                    {{
-                      [
-                        $translateTitle('product.notstarted'),
-                        $translateTitle('product.testing'),
-                        $translateTitle('product.pending review'),
-                        $translateTitle('product.finishtest'),
-                        $translateTitle('product.review completed'),
-                      ][item.profile.step] ||
-                      $translateTitle('product.finishtest')
-                    }}
-                  </el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="任务id">
-                  {{ item.objectId }}
-                </el-descriptions-item>
-                <el-descriptions-item label="检测台体">
-                  {{ item.detail.brand }}
-                </el-descriptions-item>
-                <el-descriptions-item label="开始时间">
-                  {{ utc2beijing(item.createdAt) }}
-                </el-descriptions-item>
-                <el-descriptions-item label="设备地址">
-                  {{ item.devaddr }}
-                </el-descriptions-item>
-              </el-descriptions>
-            </el-card>
-          </div>
-          <vab-parser-pagination
-            ref="pagination"
-            :pagination="paginations"
-            :query-payload="queryPayload"
-            @pagination="fetchData"
-            @paginationQuery="paginationQuery"
-          />
-        </el-aside>
-      </transition>
     </el-container>
     <el-footer v-if="task.name" class="evidence_footer">
       <el-row :gutter="10">
@@ -500,7 +510,7 @@
               $translateTitle(
                 `${
                   Number($route.query.step) == 1
-                    ? 'cloudTest.submit review'
+                    ? 'cloudTest.预览审核'
                     : 'cloudTest.audit opinion'
                 }`
               )

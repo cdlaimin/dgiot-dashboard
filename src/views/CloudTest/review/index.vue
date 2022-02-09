@@ -17,6 +17,14 @@
     >
       <iframe :src="officeapps" style="width: 100%; height: 100%" />
     </el-drawer>
+    <el-drawer
+      v-drawerDrag
+      append-to-body
+      size="90%"
+      :visible.sync="statisticsVisible"
+    >
+      <evidence-statistics ref="statistics" :evidence-id="evidenceId" />
+    </el-drawer>
     <div class="components">
       <el-dialog append-to-body :visible.sync="evidenceDialog">
         <el-card class="box-card" shadow="hover">
@@ -34,34 +42,34 @@
             <el-table-column
               align="center"
               :label="$translateTitle('cloudTest.evidence')"
+              min-width="180"
               prop="row.original.path"
               show-overflow-tooltip
               sortable
               width="auto"
             >
               <template #default="{ row }">
-                <vue-aliplayer-v2
-                  v-if="types.video.includes(`${row.original.type}`)"
-                  :autoplay="false"
-                  height="290"
-                  :source="$FileServe + row.original.path"
-                  width="290"
-                />
-                <el-image
-                  v-else-if="types.image.includes(`${row.original.type}`)"
-                  :preview-src-list="[$FileServe + row.original.path]"
-                  :src="$FileServe + row.original.path"
-                  style="width: 100px; height: 100px"
-                />
-                <av-bars
-                  v-else-if="types.audio.includes(`${row.original.type}`)"
-                  :audio-src="$FileServe + row.original.path"
-                />
-                <el-link
-                  v-else-if="types.file.includes(`${row.original.type}`)"
-                  :href="$FileServe + row.original.path"
-                >
-                  {{ $FileServe + row.original.path }}
+                <!--                <vue-aliplayer-v2-->
+                <!--                  v-if="types.video.includes(`${row.original.type}`)"-->
+                <!--                  :options="aliplayer"-->
+                <!--                  :source="$FileServe + row.original.path"-->
+                <!--                />-->
+                <!--                <el-image-->
+                <!--                  v-else-if="types.image.includes(`${row.original.type}`)"-->
+                <!--                  :preview-src-list="[$FileServe + row.original.path]"-->
+                <!--                  :src="$FileServe + row.original.path"-->
+                <!--                  style="width: 100px; height: 100px"-->
+                <!--                />-->
+                <!--                <av-bars-->
+                <!--                  v-else-if="types.audio.includes(`${row.original.type}`)"-->
+                <!--                  :audio-src="$FileServe + row.original.path"-->
+                <!--                />-->
+                <el-link :href="$FileServe + row.original.path" target="_blank">
+                  {{
+                    row.original.path.split('/')[
+                      `${row.original.path.split('/').length - 1}`
+                    ]
+                  }}
                 </el-link>
               </template>
             </el-table-column>
@@ -254,55 +262,6 @@
           </el-form-item>
         </el-form>
       </vab-query-form-left-panel>
-      <vab-query-form-right-panel>
-        <el-popover
-          ref="popover"
-          popper-class="custom-table-checkbox"
-          trigger="hover"
-        >
-          <el-radio-group v-model="lineHeight">
-            <el-radio label="medium">
-              {{ $translateTitle('cloudTest.medium') }}
-            </el-radio>
-            <el-radio label="small">
-              {{ $translateTitle('cloudTest.small') }}
-            </el-radio>
-            <el-radio label="mini">
-              {{ $translateTitle('cloudTest.mini') }}
-            </el-radio>
-          </el-radio-group>
-          <template #reference>
-            <el-button style="margin: 0 10px 10px 0 !important" type="primary">
-              <dgiot-icon icon="line-height" />
-              {{ $translateTitle('cloudTest.size') }}
-            </el-button>
-          </template>
-        </el-popover>
-        <el-popover popper-class="custom-table-checkbox" trigger="hover">
-          <el-checkbox-group v-model="checkList">
-            <vab-draggable :list="columns" v-bind="dragOptions">
-              <div v-for="(item, index) in columns" :key="item + index">
-                <dgiot-icon icon="drag-drop-line" />
-                <el-checkbox
-                  :disabled="item.disableCheck === true"
-                  :label="item.label"
-                >
-                  {{ $translateTitle(`cloudTest.${item.label}`) }}
-                </el-checkbox>
-              </div>
-            </vab-draggable>
-          </el-checkbox-group>
-          <template #reference>
-            <el-button
-              icon="el-icon-setting"
-              style="margin: 0 0 10px 0 !important"
-              type="primary"
-            >
-              {{ $translateTitle('cloudTest.Draggable column') }}
-            </el-button>
-          </template>
-        </el-popover>
-      </vab-query-form-right-panel>
     </vab-query-form>
     <el-table
       ref="tableSort"
@@ -376,37 +335,9 @@
         align="center"
         fixed="right"
         :label="$translateTitle(`cloudTest.operate`)"
-        width="280"
+        width="480"
       >
         <template #default="{ row }">
-          <el-button
-            v-show="row.profile.step == 0"
-            size="mini"
-            type="success"
-            @click.native="handleManagement(row)"
-          >
-            {{ $translateTitle(`task.Configuration`) }}
-          </el-button>
-          <el-button
-            v-show="row.profile.step == 0"
-            size="mini"
-            type="info"
-            @click.native="taskStart(row)"
-          >
-            {{ $translateTitle(`task.start`) }}
-          </el-button>
-          <el-button
-            v-show="row.profile.step == 1 || row.profile.step == -1"
-            size="mini"
-            type="warning"
-            @click.native="forensics(row)"
-          >
-            {{
-              row.profile.step == 1
-                ? $translateTitle(`cloudTest.forensics`)
-                : $translateTitle(`cloudTest.re-review`)
-            }}
-          </el-button>
           <el-button
             v-show="row.profile.step == 2"
             size="mini"
@@ -446,6 +377,22 @@
             @click.native="handleRouter(row)"
           >
             {{ $translateTitle(`application.evidence`) }}
+          </el-button>
+          <el-button
+            v-show="row.profile.step != -1"
+            size="mini"
+            type="danger"
+            @click.native="handleHistory(row)"
+          >
+            历史数据
+          </el-button>
+          <el-button
+            v-show="row.profile.step != -1"
+            size="mini"
+            type="success"
+            @click.native="handleManagement(row)"
+          >
+            {{ $translateTitle(`task.Configuration`) }}
           </el-button>
         </template>
       </el-table-column>
