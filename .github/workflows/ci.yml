@@ -51,14 +51,14 @@ jobs:
           npm install --legacy-peer-deps
           npm install
           npm run build
-      - name: cnpm 🚀
-        run: |
-          npm install -g cnpm --registry=https://registry.npmmirror.com
-          cnpm -v
-          cnpm install rimraf -g
-          rimraf node_modules dev dist
-          cnpm install
-          cnpm run build
+#      - name: cnpm 🚀
+#        run: |
+#          npm install -g cnpm --registry=https://registry.npmmirror.com
+#          cnpm -v
+#          cnpm install rimraf -g
+#          rimraf node_modules dev dist
+#          cnpm install
+#          cnpm run build
       - name: yarn 🚀
         run: |
           npm install --global yarn --registry https://registry.npmmirror.com
@@ -131,14 +131,14 @@ jobs:
           npm install --legacy-peer-deps
           npm install
           npm run build
-      - name: cnpm 🚀
-        run: |
-          npm install -g cnpm --registry=https://registry.npmmirror.com
-          cnpm -v
-          cnpm install rimraf -g
-          rimraf node_modules dev dist
-          cnpm install
-          cnpm run build
+#      - name: cnpm 🚀
+#        run: |
+#          npm install -g cnpm --registry=https://registry.npmmirror.com
+#          cnpm -v
+#          cnpm install rimraf -g
+#          rimraf node_modules dev dist
+#          cnpm install
+#          cnpm run build
       - name: yarn 🚀
         run: |
           npm install --global yarn --registry https://registry.npmmirror.com
